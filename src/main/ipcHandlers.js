@@ -4,7 +4,7 @@ const { ipcMain } = require('electron');
  * Validated, Secure IPC Handlers
  * Sanitizes all arguments and enforces channel contracts between main and renderers.
  */
-function registerIpcHandlers(store, windowManager, focusManager) {
+function registerIpcHandlers(store, windowManager, focusManager, aiService) {
   /* ================= COMPANION ================= */
   ipcMain.handle('companion:getState', async () => {
     return store.get('companion');
@@ -310,6 +310,63 @@ function registerIpcHandlers(store, windowManager, focusManager) {
       windowManager.companionWindow.setAlwaysOnTop(updated.alwaysOnTop);
     }
     return updated;
+  });
+
+  /* ================= CONVERSATIONAL AI & MEMORY ================= */
+  ipcMain.handle('ai:getConfig', async () => {
+    if (!aiService) return { enabled: false, hasApiKey: false };
+    return aiService.getConfig();
+  });
+
+  ipcMain.handle('ai:updateConfig', async (event, updates) => {
+    if (!aiService) return false;
+    return aiService.updateConfig(updates);
+  });
+
+  ipcMain.handle('ai:getPermittedContext', async () => {
+    if (!aiService) return {};
+    return aiService.getPermittedContext();
+  });
+
+  ipcMain.handle('ai:sendMessage', async (event, text) => {
+    if (!aiService) {
+      return {
+        success: false,
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'The AI service is not initialized.'
+      };
+    }
+    const result = await aiService.sendMessage(text);
+    if (result.success) {
+      // Sync dialogue update to companion window
+      windowManager.sendToAll('companion:updated', store.get('companion'));
+    }
+    return result;
+  });
+
+  ipcMain.handle('ai:getHistory', async () => {
+    if (!aiService) return [];
+    return aiService.getHistory();
+  });
+
+  ipcMain.handle('ai:clearHistory', async () => {
+    if (!aiService) return [];
+    return aiService.clearHistory();
+  });
+
+  ipcMain.handle('ai:getMemories', async () => {
+    if (!aiService) return [];
+    return aiService.getMemories();
+  });
+
+  ipcMain.handle('ai:saveMemory', async (event, text) => {
+    if (!aiService) return null;
+    return aiService.saveMemory(text);
+  });
+
+  ipcMain.handle('ai:deleteMemory', async (event, id) => {
+    if (!aiService) return false;
+    return aiService.deleteMemory(id);
   });
 }
 

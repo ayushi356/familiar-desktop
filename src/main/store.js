@@ -86,6 +86,34 @@ const DEFAULT_DATA = {
       appBreakdown: {}
     },
     history: []
+  },
+  ai: {
+    enabled: false,
+    apiKey: '',
+    endpoint: 'https://api.openai.com/v1',
+    model: 'gpt-4o-mini',
+    contextSharing: {
+      shareCurrentTask: true,
+      shareFocusStatus: true,
+      shareFocusPreferences: true,
+      shareSharedTasks: true,
+      shareMemories: true
+    },
+    memories: [
+      {
+        id: 'mem_welcome_1',
+        text: 'Prefers gentle, cozy encouragement over strict productivity rules.',
+        createdAt: new Date().toISOString()
+      }
+    ],
+    chatHistory: [
+      {
+        id: 'msg_welcome',
+        role: 'assistant',
+        content: 'Greetings, seeker of quiet magic. I am Hesper, your desk familiar. Tell me what spells or goals we are weaving today!',
+        timestamp: Date.now()
+      }
+    ]
   }
 };
 

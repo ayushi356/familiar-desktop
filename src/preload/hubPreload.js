@@ -64,6 +64,19 @@ contextBridge.exposeInMainWorld('familiarHubAPI', {
     update: (newSettings) => ipcRenderer.invoke('settings:update', newSettings)
   },
 
+  // Conversational AI & Memory
+  ai: {
+    getConfig: () => ipcRenderer.invoke('ai:getConfig'),
+    updateConfig: (updates) => ipcRenderer.invoke('ai:updateConfig', updates),
+    getPermittedContext: () => ipcRenderer.invoke('ai:getPermittedContext'),
+    sendMessage: (text) => ipcRenderer.invoke('ai:sendMessage', text),
+    getHistory: () => ipcRenderer.invoke('ai:getHistory'),
+    clearHistory: () => ipcRenderer.invoke('ai:clearHistory'),
+    getMemories: () => ipcRenderer.invoke('ai:getMemories'),
+    saveMemory: (text) => ipcRenderer.invoke('ai:saveMemory', text),
+    deleteMemory: (id) => ipcRenderer.invoke('ai:deleteMemory', id)
+  },
+
   // Event listeners for global updates
   onTabRequested: (callback) => {
     const sub = (event, tab) => callback(tab);

@@ -64,7 +64,8 @@ function initStaticIcons() {
     'icon-btn-study': 'study',
     'icon-btn-rest': 'rest',
     'activity-shield-icon': 'shield',
-    'cauldron-svg-mount': 'cauldron'
+    'cauldron-svg-mount': 'cauldron',
+    'icon-send-quill': 'talk'
   };
 
   for (const [elementId, iconName] of Object.entries(iconMappings)) {
@@ -561,10 +562,443 @@ btnSaveSettings.addEventListener('click', async () => {
     await window.familiarHubAPI.companion.updateName(newName);
   }
 
+  // Save AI Configuration
+  if (window.familiarHubAPI.ai) {
+    const aiUpdates = {
+      enabled: settingAiEnabled.checked,
+      endpoint: settingAiEndpoint.value.trim(),
+      model: settingAiModel.value.trim(),
+      contextSharing: {
+        shareFocusStatus: settingShareFocus.checked,
+        shareFocusPreferences: settingShareFocusPrefs.checked,
+        shareCurrentTask: settingShareCurrTask.checked,
+        shareSharedTasks: settingShareTasks.checked,
+        shareMemories: settingShareMemories.checked
+      }
+    };
+    const keyVal = settingAiKey.value.trim();
+    if (keyVal && !keyVal.includes('...')) {
+      aiUpdates.apiKey = keyVal;
+    }
+    await window.familiarHubAPI.ai.updateConfig(aiUpdates);
+    await loadAISettings();
+  }
+
   btnSaveSettings.textContent = 'Saved!';
   setTimeout(() => { btnSaveSettings.textContent = 'Save Settings'; }, 2000);
   refreshAllData();
 });
+
+/* ========================================================
+   GRIMOIRE CHAT PARLOR (CONVERSATIONAL AI)
+======================================================== */
+const chatMessagesStream = document.getElementById('chat-messages-stream');
+const chatTypingIndicator = document.getElementById('chat-typing-indicator');
+const chatErrorBanner = document.getElementById('chat-error-banner');
+const chatErrorText = document.getElementById('chat-error-text');
+const btnRetryChat = document.getElementById('btn-retry-chat');
+const chatInputForm = document.getElementById('chat-input-form');
+const inputChatMessage = document.getElementById('input-chat-message');
+const btnClearChat = document.getElementById('btn-clear-chat');
+const btnPreviewContext = document.getElementById('btn-preview-context');
+const btnOpenAiSettings = document.getElementById('btn-open-ai-settings');
+const aiStatusIndicator = document.getElementById('ai-status-indicator');
+const promptChips = document.querySelectorAll('.prompt-chip');
+
+// Context Preview Modal Elements
+const modalContextPreview = document.getElementById('modal-context-preview');
+const modalContextJson = document.getElementById('modal-context-json');
+const btnCloseContextModal = document.getElementById('btn-close-context-modal');
+const btnDismissContextModal = document.getElementById('btn-dismiss-context-modal');
+const btnSettingsPreviewContext = document.getElementById('btn-settings-preview-context');
+
+// AI Settings Elements
+const settingAiEnabled = document.getElementById('setting-ai-enabled');
+const aiConfigSubpanel = document.getElementById('ai-config-subpanel');
+const settingAiEndpoint = document.getElementById('setting-ai-endpoint');
+const settingAiModel = document.getElementById('setting-ai-model');
+const settingAiKey = document.getElementById('setting-ai-key');
+const btnToggleKeyVisibility = document.getElementById('btn-toggle-key-visibility');
+const presetButtons = document.querySelectorAll('.btn-preset');
+
+const settingShareFocus = document.getElementById('setting-share-focus');
+const settingShareFocusPrefs = document.getElementById('setting-share-focus-prefs');
+const settingShareCurrTask = document.getElementById('setting-share-curr-task');
+const settingShareTasks = document.getElementById('setting-share-tasks');
+const settingShareMemories = document.getElementById('setting-share-memories');
+
+// Memories Elements
+const newMemoryInput = document.getElementById('new-memory-input');
+const btnSaveNewMemory = document.getElementById('btn-save-new-memory');
+const memoriesListContainer = document.getElementById('memories-list-container');
+const memoriesCountBadge = document.getElementById('memories-count-badge');
+
+let lastFailedMessage = '';
+let currentAiConfig = null;
+
+function formatMessageTime(timestamp) {
+  if (!timestamp) return '';
+  const d = new Date(timestamp);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function appendBubbleToStream(role, content, timestamp = Date.now(), isFallback = false) {
+  if (!chatMessagesStream) return;
+
+  const bubble = document.createElement('div');
+  bubble.className = `chat-bubble ${role === 'user' ? 'bubble-user' : 'bubble-hesper'}`;
+
+  const timeStr = formatMessageTime(timestamp);
+
+  if (role === 'assistant') {
+    const senderTag = isFallback ? '✦ Hesper (Resting)' : '✦ Hesper';
+    bubble.innerHTML = `
+      <div class="bubble-sender">${senderTag}</div>
+      <div class="bubble-text">${escapeHtml(content)}</div>
+      <div class="bubble-time">${timeStr}</div>
+    `;
+  } else {
+    bubble.innerHTML = `
+      <div class="bubble-text">${escapeHtml(content)}</div>
+      <div class="bubble-time">${timeStr}</div>
+    `;
+  }
+
+  chatMessagesStream.appendChild(bubble);
+  chatMessagesStream.scrollTop = chatMessagesStream.scrollHeight;
+}
+
+async function loadChatHistory() {
+  if (!window.familiarHubAPI?.ai || !chatMessagesStream) return;
+  try {
+    const history = await window.familiarHubAPI.ai.getHistory();
+    chatMessagesStream.innerHTML = '';
+    if (Array.isArray(history) && history.length > 0) {
+      history.forEach(msg => {
+        appendBubbleToStream(msg.role, msg.content, msg.timestamp);
+      });
+    } else {
+      appendBubbleToStream('assistant', 'Greetings, seeker of quiet magic. What spells or goals are we weaving today?', Date.now());
+    }
+  } catch (err) {
+    console.error('Error loading chat history:', err);
+  }
+}
+
+async function sendChatMessage(text) {
+  if (!text || !text.trim() || !window.familiarHubAPI?.ai) return;
+  const clean = text.trim();
+
+  // 1. Append user bubble
+  appendBubbleToStream('user', clean, Date.now());
+  if (inputChatMessage) inputChatMessage.value = '';
+
+  // 2. Show thinking indicator
+  if (chatTypingIndicator) chatTypingIndicator.style.display = 'flex';
+  if (chatErrorBanner) chatErrorBanner.style.display = 'none';
+
+  // 3. Temporarily set Hesper character to 'study' state
+  if (companionElements.roomWitchAvatar) {
+    renderWitchCharacter(companionElements.roomWitchAvatar, { state: 'study', size: 'large' });
+  }
+
+  try {
+    const result = await window.familiarHubAPI.ai.sendMessage(clean);
+    if (chatTypingIndicator) chatTypingIndicator.style.display = 'none';
+
+    if (result.success) {
+      appendBubbleToStream('assistant', result.reply, Date.now());
+      // Update room dialogue scroll too
+      if (companionElements.roomDialogue) {
+        companionElements.roomDialogue.textContent = `"${result.reply}"`;
+      }
+      // Revert character to idle
+      if (companionElements.roomWitchAvatar) {
+        renderWitchCharacter(companionElements.roomWitchAvatar, { state: 'idle', size: 'large' });
+      }
+    } else {
+      lastFailedMessage = clean;
+      if (chatErrorBanner) {
+        chatErrorBanner.style.display = 'flex';
+        if (chatErrorText) chatErrorText.textContent = result.message || 'Error whispering to Hesper.';
+      }
+      if (result.fallbackReply) {
+        appendBubbleToStream('assistant', result.fallbackReply, Date.now(), true);
+      }
+      if (companionElements.roomWitchAvatar) {
+        renderWitchCharacter(companionElements.roomWitchAvatar, { state: 'idle', size: 'large' });
+      }
+    }
+  } catch (err) {
+    if (chatTypingIndicator) chatTypingIndicator.style.display = 'none';
+    lastFailedMessage = clean;
+    if (chatErrorBanner) {
+      chatErrorBanner.style.display = 'flex';
+      if (chatErrorText) chatErrorText.textContent = `Connection error: ${err.message}`;
+    }
+    if (companionElements.roomWitchAvatar) {
+      renderWitchCharacter(companionElements.roomWitchAvatar, { state: 'idle', size: 'large' });
+    }
+  }
+}
+
+// Chat Input Form Submission
+if (chatInputForm) {
+  chatInputForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (inputChatMessage) {
+      sendChatMessage(inputChatMessage.value);
+    }
+  });
+}
+
+// Retry Button
+if (btnRetryChat) {
+  btnRetryChat.addEventListener('click', () => {
+    if (lastFailedMessage) {
+      sendChatMessage(lastFailedMessage);
+    }
+  });
+}
+
+// Clear Chat Button
+if (btnClearChat) {
+  btnClearChat.addEventListener('click', async () => {
+    if (window.familiarHubAPI?.ai) {
+      await window.familiarHubAPI.ai.clearHistory();
+      await loadChatHistory();
+    }
+  });
+}
+
+// Prompt Chips
+promptChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    const promptText = chip.dataset.prompt;
+    if (promptText) {
+      if (inputChatMessage) {
+        inputChatMessage.value = promptText;
+        inputChatMessage.focus();
+      }
+    }
+  });
+});
+
+// Settings Shortcut Button
+if (btnOpenAiSettings) {
+  btnOpenAiSettings.addEventListener('click', () => {
+    switchTab('tab-settings');
+    const aiGroup = document.querySelector('.ai-settings-group');
+    if (aiGroup) aiGroup.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+if (aiStatusIndicator) {
+  aiStatusIndicator.addEventListener('click', () => {
+    switchTab('tab-settings');
+    const aiGroup = document.querySelector('.ai-settings-group');
+    if (aiGroup) aiGroup.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+/* ========================================================
+   CONTEXT PREVIEW MODAL
+======================================================== */
+async function showContextPreview() {
+  if (!window.familiarHubAPI?.ai || !modalContextPreview || !modalContextJson) return;
+  try {
+    const context = await window.familiarHubAPI.ai.getPermittedContext();
+    modalContextJson.textContent = JSON.stringify(context, null, 2);
+    modalContextPreview.style.display = 'flex';
+  } catch (err) {
+    console.error('Error fetching permitted context:', err);
+  }
+}
+
+function hideContextModal() {
+  if (modalContextPreview) {
+    modalContextPreview.style.display = 'none';
+  }
+}
+
+if (btnPreviewContext) btnPreviewContext.addEventListener('click', showContextPreview);
+if (btnSettingsPreviewContext) btnSettingsPreviewContext.addEventListener('click', showContextPreview);
+if (btnCloseContextModal) btnCloseContextModal.addEventListener('click', hideContextModal);
+if (btnDismissContextModal) btnDismissContextModal.addEventListener('click', hideContextModal);
+if (modalContextPreview) {
+  modalContextPreview.addEventListener('click', (e) => {
+    if (e.target === modalContextPreview) hideContextModal();
+  });
+}
+
+/* ========================================================
+   AI SETTINGS & MEMORIES CONTROLLER
+======================================================== */
+function updateAiStatusBadge(enabled, hasKey) {
+  if (!aiStatusIndicator) return;
+  const dot = aiStatusIndicator.querySelector('.status-dot');
+  const text = aiStatusIndicator.querySelector('.status-text');
+
+  if (enabled && hasKey) {
+    aiStatusIndicator.className = 'badge-ai-status online';
+    if (dot) dot.textContent = '●';
+    if (text) text.textContent = 'AI Awakened';
+    aiStatusIndicator.title = 'AI is active and responding with permitted context';
+  } else if (enabled && !hasKey) {
+    aiStatusIndicator.className = 'badge-ai-status offline';
+    if (dot) dot.textContent = '○';
+    if (text) text.textContent = 'Key Needed';
+    aiStatusIndicator.title = 'AI is enabled but requires an API key in Settings';
+  } else {
+    aiStatusIndicator.className = 'badge-ai-status offline';
+    if (dot) dot.textContent = '○';
+    if (text) text.textContent = 'AI Resting';
+    aiStatusIndicator.title = 'AI is disabled. Click to configure in Settings.';
+  }
+}
+
+async function loadAISettings() {
+  if (!window.familiarHubAPI?.ai) return;
+  try {
+    const config = await window.familiarHubAPI.ai.getConfig();
+    currentAiConfig = config;
+
+    if (settingAiEnabled) {
+      settingAiEnabled.checked = !!config.enabled;
+    }
+    if (aiConfigSubpanel) {
+      aiConfigSubpanel.style.display = config.enabled ? 'flex' : 'none';
+    }
+    if (settingAiEndpoint) {
+      settingAiEndpoint.value = config.endpoint || 'https://api.openai.com/v1';
+    }
+    if (settingAiModel) {
+      settingAiModel.value = config.model || 'gpt-4o-mini';
+    }
+    if (settingAiKey) {
+      if (config.hasApiKey) {
+        settingAiKey.placeholder = `Configured (${config.maskedApiKey}) — enter new key to replace`;
+      } else {
+        settingAiKey.placeholder = 'sk-... (or set OPENAI_API_KEY environment variable)';
+      }
+    }
+
+    if (config.contextSharing) {
+      if (settingShareFocus) settingShareFocus.checked = config.contextSharing.shareFocusStatus !== false;
+      if (settingShareFocusPrefs) settingShareFocusPrefs.checked = config.contextSharing.shareFocusPreferences !== false;
+      if (settingShareCurrTask) settingShareCurrTask.checked = config.contextSharing.shareCurrentTask !== false;
+      if (settingShareTasks) settingShareTasks.checked = config.contextSharing.shareSharedTasks !== false;
+      if (settingShareMemories) settingShareMemories.checked = config.contextSharing.shareMemories !== false;
+    }
+
+    updateAiStatusBadge(config.enabled, config.hasApiKey);
+    await loadMemories();
+  } catch (err) {
+    console.error('Error loading AI settings:', err);
+  }
+}
+
+if (settingAiEnabled) {
+  settingAiEnabled.addEventListener('change', async () => {
+    const isEnabled = settingAiEnabled.checked;
+    if (aiConfigSubpanel) {
+      aiConfigSubpanel.style.display = isEnabled ? 'flex' : 'none';
+    }
+    await window.familiarHubAPI.ai.updateConfig({ enabled: isEnabled });
+    updateAiStatusBadge(isEnabled, currentAiConfig?.hasApiKey);
+  });
+}
+
+// Preset Provider Buttons
+presetButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    presetButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const preset = btn.dataset.preset;
+
+    if (preset === 'openai') {
+      settingAiEndpoint.value = 'https://api.openai.com/v1';
+      settingAiModel.value = 'gpt-4o-mini';
+    } else if (preset === 'groq') {
+      settingAiEndpoint.value = 'https://api.groq.com/openai/v1';
+      settingAiModel.value = 'llama-3.1-8b-instant';
+    } else if (preset === 'ollama') {
+      settingAiEndpoint.value = 'http://localhost:11434/v1';
+      settingAiModel.value = 'llama3';
+    }
+  });
+});
+
+// Show/Hide API Key Toggle
+if (btnToggleKeyVisibility && settingAiKey) {
+  btnToggleKeyVisibility.addEventListener('click', () => {
+    if (settingAiKey.type === 'password') {
+      settingAiKey.type = 'text';
+      btnToggleKeyVisibility.textContent = '🔒';
+    } else {
+      settingAiKey.type = 'password';
+      btnToggleKeyVisibility.textContent = '👁';
+    }
+  });
+}
+
+// Memory Management
+async function loadMemories() {
+  if (!window.familiarHubAPI?.ai || !memoriesListContainer) return;
+  try {
+    const memories = await window.familiarHubAPI.ai.getMemories();
+    if (memoriesCountBadge) {
+      memoriesCountBadge.textContent = `${memories.length} ${memories.length === 1 ? 'memory' : 'memories'}`;
+    }
+
+    if (!Array.isArray(memories) || memories.length === 0) {
+      memoriesListContainer.innerHTML = '<div class="empty-state">No memories saved yet. Add preferences or habits above.</div>';
+      return;
+    }
+
+    memoriesListContainer.innerHTML = memories.map(m => `
+      <div class="memory-item">
+        <span>✦ ${escapeHtml(m.text)}</span>
+        <button type="button" class="btn-del-memory" data-id="${m.id}" title="Forget this memory">✕</button>
+      </div>
+    `).join('');
+
+    memoriesListContainer.querySelectorAll('.btn-del-memory').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        if (id) {
+          await window.familiarHubAPI.ai.deleteMemory(id);
+          await loadMemories();
+        }
+      });
+    });
+  } catch (err) {
+    console.error('Error loading memories:', err);
+  }
+}
+
+if (btnSaveNewMemory && newMemoryInput) {
+  btnSaveNewMemory.addEventListener('click', async () => {
+    const text = newMemoryInput.value.trim();
+    if (text) {
+      await window.familiarHubAPI.ai.saveMemory(text);
+      newMemoryInput.value = '';
+      await loadMemories();
+    }
+  });
+
+  newMemoryInput.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const text = newMemoryInput.value.trim();
+      if (text) {
+        await window.familiarHubAPI.ai.saveMemory(text);
+        newMemoryInput.value = '';
+        await loadMemories();
+      }
+    }
+  });
+}
 
 /* ========================================================
    GLOBAL DATA REFRESH & INIT
@@ -596,6 +1030,8 @@ async function refreshAllData() {
     }
 
     await loadTasks();
+    await loadAISettings();
+    await loadChatHistory();
   } catch (err) {
     console.error('Error refreshing sanctuary data:', err);
   }
@@ -618,3 +1054,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initStaticIcons();
   refreshAllData();
 });
+

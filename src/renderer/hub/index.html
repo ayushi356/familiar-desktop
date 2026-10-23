@@ -195,37 +195,76 @@
               </div>
             </div>
 
-            <!-- Right: Stats & Bonds -->
-            <div class="glass-panel stats-card">
-              <h3 class="card-title">Companion Bond</h3>
-              
-              <div class="stat-group">
-                <div class="stat-header">
-                  <span>Level <strong id="companion-level">1</strong></span>
-                  <span id="companion-xp-text">0 / 100 XP</span>
+            <!-- Right: Sanctuary Parlor & AI Chat -->
+            <div class="glass-panel sanctuary-parlor-card">
+              <!-- Compact Bond & Status Bar -->
+              <div class="parlor-bond-bar">
+                <div class="parlor-bond-info">
+                  <div class="bond-titles">
+                    <span>Bond Level <strong id="companion-level">1</strong></span>
+                    <span id="companion-xp-text" class="bond-sub">0 / 100 XP</span>
+                  </div>
+                  <div class="parlor-meter-bar">
+                    <div id="companion-xp-bar" class="meter-fill" style="width: 15%;"></div>
+                  </div>
                 </div>
-                <div class="meter-bar">
-                  <div id="companion-xp-bar" class="meter-fill" style="width: 15%;"></div>
-                </div>
-              </div>
-
-              <div class="stat-group">
-                <div class="stat-header">
-                  <span>Current Mood</span>
-                  <span id="companion-mood-detail" class="mood-text">Cozy & Curious</span>
-                </div>
-              </div>
-
-              <div class="stat-group">
-                <div class="stat-header">
-                  <span>Active State</span>
+                <div class="parlor-status-badges">
+                  <span id="companion-mood-detail" class="badge-mood">Cozy</span>
                   <span id="companion-state-badge" class="badge-state">Idle</span>
+                  <button id="ai-status-indicator" class="badge-ai-status offline" title="Click to view AI status & context permissions">
+                    <span class="status-dot">●</span>
+                    <span class="status-text">AI Resting</span>
+                  </button>
                 </div>
               </div>
 
-              <div class="lore-note">
-                <h4>Witch's Grimoire Note</h4>
-                <p>Complete focus sessions and mark tasks finished to gather magical stardust and unlock ancient recipes.</p>
+              <!-- Grimoire Chat Parlor Container -->
+              <div class="grimoire-chat-container">
+                <div class="chat-header">
+                  <div class="chat-title-group">
+                    <span class="chat-sigil">✦</span>
+                    <h3>Grimoire Whispers</h3>
+                  </div>
+                  <div class="chat-actions">
+                    <button id="btn-preview-context" class="btn-icon-subtle" title="View permitted context shared with Hesper">✦ Context</button>
+                    <button id="btn-clear-chat" class="btn-icon-subtle" title="Clear conversation scroll">↺ Clear</button>
+                    <button id="btn-open-ai-settings" class="btn-icon-subtle" title="Configure AI Provider & Memories">⚙ Settings</button>
+                  </div>
+                </div>
+
+                <!-- Messages Stream -->
+                <div id="chat-messages-stream" class="chat-messages-stream">
+                  <!-- Populated dynamically -->
+                </div>
+
+                <!-- Thinking / Consulting Grimoire Indicator -->
+                <div id="chat-typing-indicator" class="chat-typing-indicator" style="display: none;">
+                  <span class="sparkle-orbit">✦</span>
+                  <span class="typing-text">Hesper is consulting her grimoire...</span>
+                </div>
+
+                <!-- Error / Fallback Banner -->
+                <div id="chat-error-banner" class="chat-error-banner" style="display: none;">
+                  <span id="chat-error-text" class="error-msg"></span>
+                  <button id="btn-retry-chat" class="btn-retry">Retry</button>
+                </div>
+
+                <!-- Quick Magical Conversation Chips -->
+                <div class="chat-prompts-row">
+                  <button class="prompt-chip" data-prompt="Can you help me break down my current task into manageable spells?">✦ Break down task</button>
+                  <button class="prompt-chip" data-prompt="Brew me a gentle focus incantation for this work session.">☕ Focus spell</button>
+                  <button class="prompt-chip" data-prompt="What potion should I craft next with my ingredients?">✨ Potion advice</button>
+                  <button class="prompt-chip" data-prompt="Tell me a cozy tale from the enchanted library.">📖 Cozy tale</button>
+                </div>
+
+                <!-- Input Form -->
+                <form id="chat-input-form" class="chat-input-form">
+                  <input type="text" id="input-chat-message" class="chat-input" placeholder="Whisper a thought or question to Hesper..." maxlength="1000" autocomplete="off">
+                  <button type="submit" id="btn-send-message" class="btn-magical btn-send" title="Send message to Hesper">
+                    <span id="icon-send-quill">✦</span>
+                    <span>Send</span>
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -527,9 +566,136 @@
                 </div>
               </div>
             </div>
+
+            <!-- Conversational AI & Privacy Settings -->
+            <div class="glass-panel settings-group ai-settings-group">
+              <div class="group-header-with-badge">
+                <div>
+                  <h3>✦ Hesper's Mind & Conversational AI</h3>
+                  <p class="setting-desc">Awaken Hesper with an OpenAI-compatible conversational model. Completely opt-in and private.</p>
+                </div>
+                <span class="privacy-badge">100% Local IPC • Zero Middleman</span>
+              </div>
+
+              <!-- Master Opt-in Toggle -->
+              <div class="setting-item highlight-item">
+                <div class="setting-info">
+                  <strong>Enable AI Personality</strong>
+                  <span>Allow Hesper to generate natural responses, break down tasks, and converse.</span>
+                </div>
+                <input type="checkbox" id="setting-ai-enabled">
+              </div>
+
+              <!-- AI Provider & Credentials -->
+              <div class="ai-config-subpanel" id="ai-config-subpanel">
+                <div class="setting-row-presets">
+                  <span class="setting-label-sm">Quick Presets:</span>
+                  <button type="button" class="btn-preset active" data-preset="openai">OpenAI (Default)</button>
+                  <button type="button" class="btn-preset" data-preset="groq">Groq (Ultra-Fast)</button>
+                  <button type="button" class="btn-preset" data-preset="ollama">Ollama / Local (Offline)</button>
+                  <button type="button" class="btn-preset" data-preset="custom">Custom Endpoint</button>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <strong>API Endpoint URL</strong>
+                    <span>Base URL for OpenAI-compatible completions</span>
+                  </div>
+                  <input type="text" id="setting-ai-endpoint" class="input-text-md" placeholder="https://api.openai.com/v1" value="https://api.openai.com/v1">
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <strong>Model Name</strong>
+                    <span>e.g., gpt-4o-mini, gpt-4o, llama-3.1-8b-instant, mistral</span>
+                  </div>
+                  <input type="text" id="setting-ai-model" class="input-text-md" placeholder="gpt-4o-mini" value="gpt-4o-mini">
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-info">
+                    <strong>API Secret Key</strong>
+                    <span>Stored safely in local user-data. Never committed to source control or exposed to the renderer.</span>
+                  </div>
+                  <div class="api-key-input-wrapper">
+                    <input type="password" id="setting-ai-key" class="input-text-md" placeholder="sk-... (or set OPENAI_API_KEY env var)" autocomplete="off">
+                    <button type="button" id="btn-toggle-key-visibility" class="btn-toggle-eye" title="Show/Hide Key">👁</button>
+                  </div>
+                </div>
+
+                <!-- Context Sharing Permissions -->
+                <div class="context-sharing-panel">
+                  <h4>✦ Permitted Context (Transparency & Isolation)</h4>
+                  <p class="setting-desc">Hesper only accesses items you explicitly permit below. Your computer activity, open apps, browser URLs, and local files are <strong>NEVER</strong> shared.</p>
+                  
+                  <div class="context-checkboxes-grid">
+                    <label class="context-checkbox-label">
+                      <input type="checkbox" id="setting-share-focus" checked>
+                      <span>Active Focus Session status (mode & time remaining)</span>
+                    </label>
+                    <label class="context-checkbox-label">
+                      <input type="checkbox" id="setting-share-focus-prefs" checked>
+                      <span>Focus Preferences (session duration)</span>
+                    </label>
+                    <label class="context-checkbox-label">
+                      <input type="checkbox" id="setting-share-curr-task" checked>
+                      <span>Primary In-Progress Task Title</span>
+                    </label>
+                    <label class="context-checkbox-label">
+                      <input type="checkbox" id="setting-share-tasks" checked>
+                      <span>Shared Grimoire Tasks (top 5 uncompleted tasks)</span>
+                    </label>
+                    <label class="context-checkbox-label">
+                      <input type="checkbox" id="setting-share-memories" checked>
+                      <span>Saved Memories & User Preferences</span>
+                    </label>
+                  </div>
+
+                  <div class="context-preview-action-row">
+                    <button type="button" id="btn-settings-preview-context" class="btn-magical">✦ Preview What Hesper Sees</button>
+                  </div>
+                </div>
+
+                <!-- Memory Management -->
+                <div class="memories-manager-panel">
+                  <div class="memories-header">
+                    <h4>✦ Hesper's Memories & User Preferences</h4>
+                    <span class="memory-count-label" id="memories-count-badge">0 memories</span>
+                  </div>
+                  <p class="setting-desc">Things Hesper keeps in her grimoire to make conversations feel personalized. You can view, add, or delete memories at any time.</p>
+
+                  <div class="add-memory-row">
+                    <input type="text" id="new-memory-input" class="input-text-md" placeholder="e.g. Prefers short tea breaks, working on a game engine, likes concise tips..." maxlength="200">
+                    <button type="button" id="btn-save-new-memory" class="btn-magical">+ Remember</button>
+                  </div>
+
+                  <div id="memories-list-container" class="memories-list">
+                    <!-- Populated dynamically -->
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>
+    </div>
+  </div>
+
+  <!-- Transparency Modal: Context Preview -->
+  <div id="modal-context-preview" class="modal-backdrop" style="display: none;">
+    <div class="glass-panel modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-sigil">✦</span>
+          <h3>Hesper's Scrying View (Permitted Context)</h3>
+        </div>
+        <button id="btn-close-context-modal" class="btn-close-modal" aria-label="Close modal">✕</button>
+      </div>
+      <p class="modal-desc">This is the exact context synthesized from your permitted settings that is included with your prompts. No other computer activity or private files are accessible.</p>
+      <pre id="modal-context-json" class="context-json-viewer"></pre>
+      <div class="modal-footer">
+        <button id="btn-dismiss-context-modal" class="btn-magical">Understood</button>
+      </div>
     </div>
   </div>
 

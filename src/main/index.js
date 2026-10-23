@@ -4,6 +4,7 @@ const WindowManager = require('./windowManager');
 const TrayManager = require('./trayManager');
 const FocusManager = require('./focusManager');
 const ActivityTracker = require('./activityTracker');
+const AIService = require('./aiService');
 const registerIpcHandlers = require('./ipcHandlers');
 
 // Enforce single instance lock
@@ -19,6 +20,7 @@ let windowManager;
 let trayManager;
 let focusManager;
 let activityTracker;
+let aiService;
 
 app.isQuitting = false;
 
@@ -36,8 +38,11 @@ app.whenReady().then(() => {
   activityTracker = new ActivityTracker(store, windowManager);
   activityTracker.start();
 
-  // 5. Register secure IPC communication channels
-  registerIpcHandlers(store, windowManager, focusManager);
+  // 5. Initialize AI Conversational Service
+  aiService = new AIService(store, focusManager);
+
+  // 6. Register secure IPC communication channels
+  registerIpcHandlers(store, windowManager, focusManager, aiService);
 
   // 6. Create Windows (Floating Companion + Sanctuary Hub)
   windowManager.createCompanionWindow();
