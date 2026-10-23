@@ -9,6 +9,7 @@ const registerIpcHandlers = require('./ipcHandlers');
 // Enforce single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
+  console.log('[Familiar] Notice: Familiar is already running in the background. Focusing the active window.');
   app.quit();
   process.exit(0);
 }
@@ -47,12 +48,14 @@ app.whenReady().then(() => {
   trayManager = new TrayManager(windowManager, store);
   trayManager.createTray();
 
-  console.log('[Familiar] Application started successfully.');
+  console.log('[Familiar] Application started successfully. Desktop companion and Sanctuary Hub are visible.');
 });
 
-// Second instance launch handler: bring existing companion to front
+// Second instance launch handler: bring existing windows to front
 app.on('second-instance', () => {
+  console.log('[Familiar] Second instance launched; bringing Familiar windows to front.');
   if (windowManager) {
+    windowManager.showHub('companion');
     if (windowManager.companionWindow) {
       windowManager.companionWindow.show();
       windowManager.companionWindow.focus();

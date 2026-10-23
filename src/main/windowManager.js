@@ -10,14 +10,14 @@ class WindowManager {
 
   createCompanionWindow() {
     const primaryDisplay = screen.getPrimaryDisplay();
-    const { width: screenWidth, height: screenHeight } = primaryDisplay.workArea;
+    const workArea = primaryDisplay.workArea;
 
     const winWidth = 220;
     const winHeight = 260;
 
     // Default to bottom right above taskbar
-    const defaultX = screenWidth - winWidth - 20;
-    const defaultY = screenHeight - winHeight - 20;
+    const defaultX = Math.round(workArea.x + workArea.width - winWidth - 24);
+    const defaultY = Math.round(workArea.y + workArea.height - winHeight - 24);
 
     const alwaysOnTop = this.store.get('settings.alwaysOnTop') ?? true;
 
@@ -33,6 +33,7 @@ class WindowManager {
       resizable: false,
       alwaysOnTop: alwaysOnTop,
       skipTaskbar: true,
+      show: false,
       webPreferences: {
         preload: path.join(__dirname, '../preload/companionPreload.js'),
         contextIsolation: true,
@@ -43,6 +44,11 @@ class WindowManager {
     });
 
     this.companionWindow.loadFile(path.join(__dirname, '../renderer/companion/index.html'));
+
+    this.companionWindow.once('ready-to-show', () => {
+      this.companionWindow.show();
+      console.log(`[Familiar] Floating companion window ready at (${defaultX}, ${defaultY}).`);
+    });
 
     this.companionWindow.webContents.on('console-message', (event, ...rest) => {
       const msg = event?.message || rest[1] || rest[0] || '';
@@ -65,6 +71,7 @@ class WindowManager {
       height: 640,
       minWidth: 760,
       minHeight: 520,
+      center: true,
       frame: false,
       transparent: false,
       backgroundColor: '#141018',
@@ -79,6 +86,12 @@ class WindowManager {
     });
 
     this.hubWindow.loadFile(path.join(__dirname, '../renderer/hub/index.html'));
+
+    this.hubWindow.once('ready-to-show', () => {
+      this.hubWindow.show();
+      this.hubWindow.focus();
+      console.log('[Familiar] Sanctuary Hub window ready and visible on screen.');
+    });
 
     this.hubWindow.webContents.on('console-message', (event, ...rest) => {
       const msg = event?.message || rest[1] || rest[0] || '';
@@ -101,6 +114,7 @@ class WindowManager {
   showHub(targetTab = 'companion') {
     if (!this.hubWindow || this.hubWindow.isDestroyed()) {
       this.createHubWindow();
+      return;
     }
 
     if (this.hubWindow.isMinimized()) {
@@ -110,8 +124,16 @@ class WindowManager {
     this.hubWindow.show();
     this.hubWindow.focus();
 
-    if (targetTab) {
-      this.hubWindow.webContents.send('hub:switchTab', targetTab);
+    const sendTab = () => {
+      if (this.hubWindow && !this.hubWindow.isDestroyed()) {
+        this.hubWindow.webContents.send('hub:switchTab', targetTab);
+      }
+    };
+
+    if (this.hubWindow.webContents.isLoading()) {
+      this.hubWindow.webContents.once('did-finish-load', sendTab);
+    } else {
+      sendTab();
     }
   }
 
