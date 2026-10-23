@@ -834,17 +834,22 @@ if (modalContextPreview) {
 /* ========================================================
    AI SETTINGS & MEMORIES CONTROLLER
 ======================================================== */
-function updateAiStatusBadge(enabled, hasKey) {
+function updateAiStatusBadge(enabled, hasKey, isLocal = false) {
   if (!aiStatusIndicator) return;
   const dot = aiStatusIndicator.querySelector('.status-dot');
   const text = aiStatusIndicator.querySelector('.status-text');
 
-  if (enabled && hasKey) {
+  if (enabled && isLocal) {
+    aiStatusIndicator.className = 'badge-ai-status online';
+    if (dot) dot.textContent = '●';
+    if (text) text.textContent = 'Ollama Ready (Local)';
+    aiStatusIndicator.title = 'Hesper is attuned to your local Ollama model (100% private & offline)';
+  } else if (enabled && hasKey) {
     aiStatusIndicator.className = 'badge-ai-status online';
     if (dot) dot.textContent = '●';
     if (text) text.textContent = 'AI Awakened';
     aiStatusIndicator.title = 'AI is active and responding with permitted context';
-  } else if (enabled && !hasKey) {
+  } else if (enabled && !hasKey && !isLocal) {
     aiStatusIndicator.className = 'badge-ai-status offline';
     if (dot) dot.textContent = '○';
     if (text) text.textContent = 'Key Needed';
@@ -873,10 +878,12 @@ async function loadAISettings() {
       settingAiEndpoint.value = config.endpoint || 'https://api.openai.com/v1';
     }
     if (settingAiModel) {
-      settingAiModel.value = config.model || 'gpt-4o-mini';
+      settingAiModel.value = config.model || (config.isLocal ? 'qwen2.5:3b' : 'gpt-4o-mini');
     }
     if (settingAiKey) {
-      if (config.hasApiKey) {
+      if (config.isLocal) {
+        settingAiKey.placeholder = 'No key needed for local Ollama';
+      } else if (config.hasApiKey) {
         settingAiKey.placeholder = `Configured (${config.maskedApiKey}) — enter new key to replace`;
       } else {
         settingAiKey.placeholder = 'sk-... (or set OPENAI_API_KEY environment variable)';
@@ -891,7 +898,7 @@ async function loadAISettings() {
       if (settingShareMemories) settingShareMemories.checked = config.contextSharing.shareMemories !== false;
     }
 
-    updateAiStatusBadge(config.enabled, config.hasApiKey);
+    updateAiStatusBadge(config.enabled, config.hasApiKey, config.isLocal);
     await loadMemories();
   } catch (err) {
     console.error('Error loading AI settings:', err);
@@ -905,7 +912,7 @@ if (settingAiEnabled) {
       aiConfigSubpanel.style.display = isEnabled ? 'flex' : 'none';
     }
     await window.familiarHubAPI.ai.updateConfig({ enabled: isEnabled });
-    updateAiStatusBadge(isEnabled, currentAiConfig?.hasApiKey);
+    updateAiStatusBadge(isEnabled, currentAiConfig?.hasApiKey, currentAiConfig?.isLocal);
   });
 }
 
@@ -919,12 +926,15 @@ presetButtons.forEach(btn => {
     if (preset === 'openai') {
       settingAiEndpoint.value = 'https://api.openai.com/v1';
       settingAiModel.value = 'gpt-4o-mini';
+      settingAiKey.placeholder = 'sk-... (or set OPENAI_API_KEY)';
     } else if (preset === 'groq') {
       settingAiEndpoint.value = 'https://api.groq.com/openai/v1';
       settingAiModel.value = 'llama-3.1-8b-instant';
+      settingAiKey.placeholder = 'gsk_...';
     } else if (preset === 'ollama') {
       settingAiEndpoint.value = 'http://localhost:11434/v1';
-      settingAiModel.value = 'llama3';
+      settingAiModel.value = 'qwen2.5:3b';
+      settingAiKey.placeholder = 'No key needed for local Ollama';
     }
   });
 });

@@ -214,6 +214,34 @@ async function runAllTests() {
     assert.ok(typeof result.fallbackReply === 'string' && result.fallbackReply.length > 0);
   });
 
+  await runTest('AIService identifies local Ollama endpoints and waives API key requirement', () => {
+    const store = new Store(testStoreFile);
+    store.set('ai.enabled', true);
+    store.set('ai.endpoint', 'http://localhost:11434/v1');
+    store.set('ai.model', 'qwen2.5:3b');
+    store.set('ai.apiKey', '');
+    const ai = new AIService(store, null);
+
+    const config = ai.getConfig();
+    assert.strictEqual(config.isLocal, true, 'Should detect localhost as a local offline endpoint');
+    assert.strictEqual(config.hasApiKey, true, 'hasApiKey should be true for local endpoints');
+    assert.strictEqual(config.model, 'qwen2.5:3b');
+  });
+
+  await runTest('AIService connects to local Ollama and generates a live response with qwen2.5:3b', async () => {
+    const store = new Store(testStoreFile);
+    store.set('ai.enabled', true);
+    store.set('ai.endpoint', 'http://localhost:11434/v1');
+    store.set('ai.model', 'qwen2.5:3b');
+    store.set('ai.apiKey', '');
+    const ai = new AIService(store, null);
+
+    const result = await ai.sendMessage('Greetings Hesper! Introduce yourself in one quick sentence.');
+    assert.strictEqual(result.success, true, `Local Ollama call should succeed: ${result.message || ''}`);
+    assert.ok(result.reply && result.reply.length > 0, 'Reply should not be empty');
+    console.log(`    🔮 [Live Ollama Hesper Reply]: "${result.reply}"`);
+  });
+
   // Clean up temp store
   if (fs.existsSync(testStorePath)) fs.unlinkSync(testStorePath);
 

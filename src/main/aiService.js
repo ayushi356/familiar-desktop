@@ -18,12 +18,15 @@ class AIService {
   getConfig() {
     const ai = this.store.get('ai') || {};
     const key = this._resolveApiKey();
+    const endpoint = ai.endpoint || 'https://api.openai.com/v1';
+    const isLocal = this._isLocalEndpoint(endpoint);
     return {
       enabled: !!ai.enabled,
-      hasApiKey: !!key,
+      isLocal,
+      hasApiKey: isLocal ? true : !!key,
       maskedApiKey: key ? `${key.slice(0, 4)}...${key.slice(-4)}` : '',
-      endpoint: ai.endpoint || 'https://api.openai.com/v1',
-      model: ai.model || 'gpt-4o-mini',
+      endpoint,
+      model: ai.model || (isLocal ? 'qwen2.5:3b' : 'gpt-4o-mini'),
       contextSharing: ai.contextSharing || {
         shareCurrentTask: true,
         shareFocusStatus: true,
@@ -32,6 +35,15 @@ class AIService {
         shareMemories: true
       }
     };
+  }
+
+  /**
+   * Checks whether the endpoint points to a local machine instance (Ollama, LM Studio, etc.)
+   */
+  _isLocalEndpoint(endpoint) {
+    if (!endpoint || typeof endpoint !== 'string') return false;
+    const lower = endpoint.toLowerCase();
+    return lower.includes('localhost') || lower.includes('127.0.0.1') || lower.includes('0.0.0.0') || lower.includes('::1');
   }
 
   /**
@@ -218,9 +230,13 @@ USER'S CURRENT PERMITTED CONTEXT:
       };
     }
 
-    // Resolve API key
+    const endpoint = (ai.endpoint || 'https://api.openai.com/v1').replace(/\/+$/, '');
+    const isLocal = this._isLocalEndpoint(endpoint);
+    const model = ai.model || (isLocal ? 'qwen2.5:3b' : 'gpt-4o-mini');
+
+    // Resolve API key (only required for remote cloud providers)
     const apiKey = this._resolveApiKey();
-    if (!apiKey) {
+    if (!apiKey && !isLocal) {
       return {
         success: false,
         error: 'MISSING_KEY',
@@ -228,9 +244,6 @@ USER'S CURRENT PERMITTED CONTEXT:
         fallbackReply: this._getRandomFallbackReply()
       };
     }
-
-    const endpoint = (ai.endpoint || 'https://api.openai.com/v1').replace(/\/+$/, '');
-    const model = ai.model || 'gpt-4o-mini';
 
     // Build system prompt with strictly permitted context
     const systemPrompt = this.buildSystemPrompt();
@@ -248,16 +261,25 @@ USER'S CURRENT PERMITTED CONTEXT:
     ];
 
     try {
+      // Local models may need time to warm up into memory on the first request
+      const timeoutMs = isLocal ? 75000 : 30000;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 28000);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
       const requestUrl = `${endpoint}/chat/completions`;
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      if (apiKey) {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+      } else if (isLocal) {
+        // Ollama OpenAI-compatible layer accepts Bearer tokens or omitted auth
+        headers['Authorization'] = 'Bearer ollama';
+      }
+
       const response = await fetch(requestUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
+        headers,
         body: JSON.stringify({
           model,
           messages,
@@ -328,13 +350,17 @@ USER'S CURRENT PERMITTED CONTEXT:
         return {
           success: false,
           error: 'TIMEOUT',
-          message: 'The mystical connection timed out. Check your network or try a smaller message.'
+          message: isLocal
+            ? `Local model '${model}' timed out while generating a response. Ensure your computer has sufficient memory available.`
+            : 'The mystical connection timed out. Check your network or try a smaller message.'
         };
       }
       return {
         success: false,
-        error: 'NETWORK_ERROR',
-        message: `Could not connect to ${endpoint}. Verify your network connection or endpoint configuration.`,
+        error: isLocal ? 'LOCAL_OFFLINE' : 'NETWORK_ERROR',
+        message: isLocal
+          ? `Could not connect to local Ollama on ${endpoint}. Make sure the Ollama application is running and the '${model}' model is installed.`
+          : `Could not connect to ${endpoint}. Verify your network connection or endpoint configuration.`,
         detail: err.message
       };
     }
