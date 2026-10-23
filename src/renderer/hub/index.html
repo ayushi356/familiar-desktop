@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Familiar — Companion Sanctuary</title>
   <link rel="stylesheet" href="../common/theme.css">
@@ -35,7 +35,7 @@
       <nav class="hub-sidebar" aria-label="Navigation">
         <div class="companion-mini-profile">
           <div class="avatar-glow">
-            <div id="sidebar-witch-avatar" class="sidebar-avatar">🧙‍♀️</div>
+            <div id="sidebar-witch-avatar" class="sidebar-avatar"></div>
           </div>
           <div class="profile-info">
             <h3 id="sidebar-companion-name">Hesper</h3>
@@ -46,44 +46,44 @@
         <ul class="nav-links">
           <li>
             <button class="nav-item active" data-tab="tab-companion">
-              <span class="nav-icon">🔮</span>
-              <span class="nav-text">Companion</span>
+              <span class="nav-icon" id="nav-icon-companion"></span>
+              <span class="nav-text">Sanctuary</span>
             </button>
           </li>
           <li>
             <button class="nav-item" data-tab="tab-focus">
-              <span class="nav-icon">⏳</span>
+              <span class="nav-icon" id="nav-icon-focus"></span>
               <span class="nav-text">Focus Timer</span>
             </button>
           </li>
           <li>
             <button class="nav-item" data-tab="tab-tasks">
-              <span class="nav-icon">📜</span>
-              <span class="nav-text">Tasks</span>
+              <span class="nav-icon" id="nav-icon-tasks"></span>
+              <span class="nav-text">Grimoire Tasks</span>
               <span id="task-badge-count" class="nav-badge">0</span>
             </button>
           </li>
           <li>
             <button class="nav-item" data-tab="tab-activity">
-              <span class="nav-icon">📊</span>
+              <span class="nav-icon" id="nav-icon-activity"></span>
               <span class="nav-text">Activity</span>
             </button>
           </li>
           <li>
             <button class="nav-item" data-tab="tab-inventory">
-              <span class="nav-icon">🎒</span>
-              <span class="nav-text">Inventory</span>
+              <span class="nav-icon" id="nav-icon-inventory"></span>
+              <span class="nav-text">Satchel</span>
             </button>
           </li>
           <li>
             <button class="nav-item" data-tab="tab-minigames">
-              <span class="nav-icon">🧪</span>
+              <span class="nav-icon" id="nav-icon-minigames"></span>
               <span class="nav-text">Potion Brewing</span>
             </button>
           </li>
           <li>
             <button class="nav-item" data-tab="tab-settings">
-              <span class="nav-icon">⚙️</span>
+              <span class="nav-icon" id="nav-icon-settings"></span>
               <span class="nav-text">Settings</span>
             </button>
           </li>
@@ -91,16 +91,16 @@
 
         <!-- Privacy Status in Sidebar Footer -->
         <div class="sidebar-footer">
-          <div class="privacy-indicator">
-            <span class="privacy-dot"></span>
-            <span class="privacy-text">Local Only • Private</span>
+          <div class="privacy-indicator" title="100% On-Device • Zero Network Uploads">
+            <span class="privacy-shield-icon" id="sidebar-shield-icon"></span>
+            <span class="privacy-text">Private • Local Only</span>
           </div>
         </div>
       </nav>
 
       <!-- Main Content Area -->
       <main class="hub-content">
-        <!-- TAB 1: COMPANION -->
+        <!-- TAB 1: COMPANION SANCTUARY -->
         <section id="tab-companion" class="tab-pane active">
           <div class="pane-header">
             <div>
@@ -108,38 +108,90 @@
               <p class="subtitle">Spend quiet moments with your desk familiar</p>
             </div>
             <div class="stardust-counter">
-              <span class="star-icon">✨</span>
+              <span class="star-icon" id="header-stardust-icon"></span>
               <span id="companion-stardust">50</span>
               <span class="counter-label">Stardust</span>
             </div>
           </div>
 
           <div class="companion-sanctuary-grid">
-            <!-- Left: Character Stage & Room -->
+            <!-- Left: Character Stage & Atmospheric Room Scene -->
             <div class="glass-panel character-room-card">
-              <div class="room-visual">
-                <div class="room-candle">🕯️</div>
-                <div class="room-shelf">📚</div>
-                <div class="room-plant">🌿</div>
-                <div id="room-witch-avatar" class="room-witch">
-                  <!-- Witch Silhouette/Avatar -->
-                  <div class="witch-large-avatar">🧙‍♀️</div>
+              <!-- Handcrafted 2D Sanctuary Room Illustration -->
+              <div class="room-sanctuary-scene">
+                <!-- Gothic Arched Window with Moonlight & Stars -->
+                <div class="sanctuary-window">
+                  <div class="night-sky">
+                    <div class="sky-star s1">✦</div>
+                    <div class="sky-star s2">✧</div>
+                    <div class="sky-star s3">✦</div>
+                    <div class="crescent-moon"></div>
+                  </div>
+                  <!-- Gothic Stone Tracery -->
+                  <div class="gothic-arch-frame"></div>
+                </div>
+
+                <!-- Hanging Enchanted Ivy -->
+                <div class="ivy-vine left-ivy"></div>
+                <div class="ivy-vine right-ivy"></div>
+
+                <!-- Walnut Work Desk Surface -->
+                <div class="wooden-desk-surface">
+                  <!-- Brass Candlestick with Animated Flickering Flame -->
+                  <div class="desk-prop brass-candlestick">
+                    <div class="candle-flame"></div>
+                    <div class="candle-stick"></div>
+                  </div>
+
+                  <!-- Stacked Grimoires -->
+                  <div class="desk-prop book-stack">
+                    <div class="grimoire-spine g1"></div>
+                    <div class="grimoire-spine g2"></div>
+                    <div class="grimoire-spine g3"></div>
+                  </div>
+
+                  <!-- Hesper Character Anchor -->
+                  <div id="room-witch-avatar" class="sanctuary-character-stage">
+                    <!-- Dynamic Character Component injected here -->
+                  </div>
+
+                  <!-- Potion Rack & Lavender Flasks -->
+                  <div class="desk-prop alchemy-rack">
+                    <div class="alembic-vial v1"></div>
+                    <div class="alembic-vial v2"></div>
+                  </div>
                 </div>
               </div>
 
-              <div class="dialogue-box">
-                <div class="dialogue-speaker">Hesper whispers:</div>
+              <!-- Antique Parchment Dialogue Scroll -->
+              <div class="dialogue-parchment-box">
+                <div class="dialogue-header">
+                  <span class="dialogue-sigil">✦</span>
+                  <span class="dialogue-speaker">Hesper whispers:</span>
+                </div>
                 <div id="room-dialogue-text" class="dialogue-content">
                   "The afternoon air smells of parchment and dried lavender. What shall we achieve today?"
                 </div>
               </div>
 
-              <!-- Interaction Buttons -->
+              <!-- Refined Gothic Interaction Buttons -->
               <div class="interaction-buttons">
-                <button class="btn-magical" id="btn-action-talk">💬 Talk</button>
-                <button class="btn-magical" id="btn-action-tea">🍵 Offer Tea</button>
-                <button class="btn-magical" id="btn-action-study">📖 Study Together</button>
-                <button class="btn-magical" id="btn-action-rest">🌙 Rest</button>
+                <button class="btn-magical" id="btn-action-talk">
+                  <span class="btn-svg-slot" id="icon-btn-talk"></span>
+                  <span>Talk</span>
+                </button>
+                <button class="btn-magical" id="btn-action-tea">
+                  <span class="btn-svg-slot" id="icon-btn-tea"></span>
+                  <span>Offer Tea</span>
+                </button>
+                <button class="btn-magical" id="btn-action-study">
+                  <span class="btn-svg-slot" id="icon-btn-study"></span>
+                  <span>Study Together</span>
+                </button>
+                <button class="btn-magical" id="btn-action-rest">
+                  <span class="btn-svg-slot" id="icon-btn-rest"></span>
+                  <span>Rest</span>
+                </button>
               </div>
             </div>
 
@@ -198,7 +250,7 @@
                 <button class="timer-mode-btn" data-minutes="15">15m Long Break</button>
               </div>
 
-              <!-- Main Circular / Digital Display -->
+              <!-- Main Circular Antique Chronometer Display -->
               <div class="timer-circle-wrapper">
                 <div class="timer-digital" id="focus-timer-text">25:00</div>
                 <div class="timer-status-sub" id="focus-state-label">Ready to begin</div>
@@ -207,7 +259,7 @@
               <!-- Current Focus Goal Input -->
               <div class="goal-input-box">
                 <label for="focus-goal-input">Intentional Goal:</label>
-                <input type="text" id="focus-goal-input" placeholder="e.g., Implement window tracking logic..." maxlength="80">
+                <input type="text" id="focus-goal-input" placeholder="e.g., Write spell incantation notes..." maxlength="80">
               </div>
 
               <!-- Timer Controls -->
@@ -232,8 +284,8 @@
                 </div>
               </div>
 
-              <h4 style="margin-top: 20px; font-size: 0.9rem; color: var(--accent-lavender);">Focus Tip</h4>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+              <h4 style="margin-top: 20px; font-size: 0.88rem; color: var(--accent-lavender);">Focus Tip</h4>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 6px; line-height: 1.45;">
                 Taking regular short breaks protects your eyes and restores creative energy. Hesper will brew tea while you rest.
               </p>
             </div>
@@ -290,7 +342,7 @@
 
           <!-- Privacy Notice Card -->
           <div class="glass-panel privacy-banner">
-            <div class="privacy-icon">🛡️</div>
+            <div class="privacy-icon-wrap" id="activity-shield-icon"></div>
             <div class="privacy-info">
               <strong>Your Data Stays on Your Machine</strong>
               <p>Familiar only checks which application window is currently active and whether you are idle. No keystrokes, screenshots, or URLs are ever recorded or transmitted.</p>
@@ -338,28 +390,14 @@
           <div class="glass-panel inventory-section">
             <h3 class="section-title">Brewing Ingredients</h3>
             <div id="inventory-ingredients-grid" class="ingredients-grid">
-              <!-- Dynamically populated ingredients -->
+              <!-- Dynamically populated ingredients with clean SVGs -->
             </div>
           </div>
 
           <div class="glass-panel inventory-section" style="margin-top: 16px;">
             <h3 class="section-title">Unlocked Sanctuary Curios</h3>
-            <div class="curios-grid">
-              <div class="curio-card unlocked">
-                <span class="curio-icon">🕯️</span>
-                <span class="curio-name">Candle Cluster</span>
-                <span class="curio-desc">Soft, warm amber glow</span>
-              </div>
-              <div class="curio-card locked">
-                <span class="curio-icon">🔮</span>
-                <span class="curio-name">Amethyst Orb</span>
-                <span class="curio-desc">Unlocks at Level 3</span>
-              </div>
-              <div class="curio-card locked">
-                <span class="curio-icon">🐈‍⬛</span>
-                <span class="curio-name">Shadow Cat</span>
-                <span class="curio-desc">Unlocks at Level 5</span>
-              </div>
+            <div id="sanctuary-curios-grid" class="curios-grid">
+              <!-- Curios populated dynamically with SVGs -->
             </div>
           </div>
         </section>
@@ -376,15 +414,17 @@
           <div class="brewing-layout">
             <!-- Left: Cauldron Workshop -->
             <div class="glass-panel cauldron-workshop">
-              <div class="cauldron-container">
-                <div class="cauldron-steam">🫧</div>
-                <div class="cauldron-graphic">🥣</div>
-                <div class="cauldron-glow"></div>
+              <!-- SVG Illustrated Cauldron with Boiling Elixir Surface -->
+              <div class="cauldron-illustration-stage">
+                <div class="cauldron-vapor v1"></div>
+                <div class="cauldron-vapor v2"></div>
+                <div class="cauldron-vapor v3"></div>
+                <div id="cauldron-svg-mount" class="cauldron-svg-mount"></div>
               </div>
 
               <!-- Selected Slots -->
               <div class="selected-slots-area">
-                <span class="slots-label">Selected Ingredients:</span>
+                <span class="slots-label">Selected Reagents:</span>
                 <div class="slots-row">
                   <div id="brew-slot-1" class="brew-slot" data-slot="0">Empty</div>
                   <span class="plus-sign">+</span>
@@ -402,9 +442,9 @@
 
             <!-- Right: Recipe Discovery Log & Available Ingredients -->
             <div class="glass-panel recipe-book">
-              <h3 class="card-title">Available Ingredients</h3>
+              <h3 class="card-title">Satchel Reagents</h3>
               <div id="brew-ingredients-selector" class="brew-picker-list">
-                <!-- Dynamically filled with clickable ingredients from satchel -->
+                <!-- Dynamically filled with clickable SVG ingredients -->
               </div>
 
               <h3 class="card-title" style="margin-top: 24px;">Discovered Recipes</h3>
@@ -493,6 +533,8 @@
     </div>
   </div>
 
+  <script src="../common/icons.js"></script>
+  <script src="../common/characterComponent.js"></script>
   <script src="hub.js"></script>
 </body>
 </html>

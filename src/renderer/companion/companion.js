@@ -5,7 +5,7 @@
 const elements = {
   container: document.getElementById('companion-root'),
   stage: document.getElementById('character-stage'),
-  character: document.getElementById('witch-character'),
+  mount: document.getElementById('character-mount'),
   speechBubble: document.getElementById('speech-bubble'),
   speechText: document.getElementById('speech-text'),
   focusPill: document.getElementById('focus-pill'),
@@ -40,36 +40,8 @@ function hideDialogue() {
 function applyCompanionState(data) {
   if (!data) return;
 
-  // Clear existing state-* classes
-  const classes = Array.from(elements.character.classList).filter(c => !c.startsWith('state-'));
-  elements.character.className = classes.join(' ');
-
-  // Add active state class
   const state = data.currentState || 'idle';
-  elements.character.classList.add(`state-${state}`);
-
-  // Dynamic prop rendering for states
-  const propContainer = document.getElementById('character-prop');
-  if (propContainer) {
-    if (state === 'reading') {
-      propContainer.innerHTML = `
-        <svg viewBox="0 0 40 30" width="36" height="26">
-          <path d="M 5 22 Q 20 18 20 8 Q 20 18 35 22 Q 20 26 5 22" fill="#5c3826" stroke="#f6c177" stroke-width="1"/>
-          <path d="M 6 20 Q 19 16 19 9 Q 19 16 34 20 Q 19 23 6 20" fill="#fdfbf7"/>
-          <circle cx="20" cy="14" r="2" fill="#c4a7e7"/>
-        </svg>
-      `;
-    } else if (state === 'brewing') {
-      propContainer.innerHTML = `
-        <svg viewBox="0 0 40 30" width="34" height="24">
-          <ellipse cx="20" cy="22" rx="14" ry="7" fill="#1b1222" stroke="#9ccfd8" stroke-width="1.2"/>
-          <ellipse cx="20" cy="17" rx="12" ry="4" fill="#9ccfd8" opacity="0.6"/>
-        </svg>
-      `;
-    } else {
-      propContainer.innerHTML = '';
-    }
-  }
+  renderWitchCharacter(elements.mount, { state, size: 'compact' });
 
   // If new dialogue is provided, display speech bubble
   if (data.dialogue) {

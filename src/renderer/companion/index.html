@@ -24,112 +24,39 @@
 
     <!-- Character Sprite & Animation Area (Draggable) -->
     <div id="character-stage" class="character-stage" title="Click to interact with Hesper">
-      <!-- Magical Aura / Candlelight Glow -->
-      <div class="character-aura"></div>
-
-      <!-- Witch Character SVG Component -->
-      <div id="witch-character" class="witch-character state-idle">
-        <!-- Prop Layer (Cauldron, Book, Tea, etc.) -->
-        <div id="character-prop" class="character-prop"></div>
-
-        <!-- Witch Body Core -->
-        <svg class="witch-svg" viewBox="0 0 100 120" width="100" height="120" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="witchAuraGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#f6c177" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#f6c177" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="witchRobeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#2c1a35"/>
-              <stop offset="100%" stop-color="#180f20"/>
-            </linearGradient>
-            <linearGradient id="witchHatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#3b1f48"/>
-              <stop offset="100%" stop-color="#1a0d24"/>
-            </linearGradient>
-            <linearGradient id="witchHairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#70538a"/>
-              <stop offset="100%" stop-color="#463159"/>
-            </linearGradient>
-          </defs>
-
-          <!-- Back Hair -->
-          <path class="witch-part part-backhair" d="M 32 45 C 30 75 32 82 40 85 C 50 87 60 87 70 85 C 78 82 80 75 78 45 Z" fill="url(#witchHairGrad)" />
-
-          <!-- Robe / Body -->
-          <path class="witch-part part-robe" d="M 40 68 Q 30 102 24 108 Q 50 114 76 108 Q 70 102 60 68 Z" fill="url(#witchRobeGrad)" stroke="#522b5b" stroke-width="1.5" />
-          
-          <!-- Robe Collar / Scarf with Lavender Gem -->
-          <path class="witch-part part-collar" d="M 42 66 Q 50 72 58 66 Q 50 78 42 66" fill="#522b5b" />
-          <circle cx="50" cy="72" r="2.5" fill="#c4a7e7" />
-
-          <!-- Little Hands -->
-          <circle class="witch-part part-hand-left" cx="37" cy="80" r="3.5" fill="#ffdfba" />
-          <circle class="witch-part part-hand-right" cx="63" cy="80" r="3.5" fill="#ffdfba" />
-
-          <!-- Face -->
-          <ellipse class="witch-part part-face" cx="50" cy="54" rx="16" ry="15" fill="#ffe7cf" />
-          
-          <!-- Cheeks Blush -->
-          <ellipse cx="40" cy="58" rx="3.5" ry="2" fill="#eb6f92" opacity="0.45" />
-          <ellipse cx="60" cy="58" rx="3.5" ry="2" fill="#eb6f92" opacity="0.45" />
-
-          <!-- Eyes (Blinking Animation Target) -->
-          <g id="witch-eyes" class="witch-eyes">
-            <ellipse class="witch-eye eye-left" cx="43" cy="52" rx="2.5" ry="3.5" fill="#2d1537" />
-            <ellipse class="witch-eye eye-right" cx="57" cy="52" rx="2.5" ry="3.5" fill="#2d1537" />
-            <!-- Eye Highlights -->
-            <circle cx="44" cy="51" r="1.2" fill="#ffffff" />
-            <circle cx="58" cy="51" r="1.2" fill="#ffffff" />
-          </g>
-
-          <!-- Front Hair Bangs -->
-          <path class="witch-part part-bangs" d="M 34 46 C 42 54 45 44 50 50 C 55 44 58 54 66 46 C 68 40 64 36 50 36 C 36 36 32 40 34 46 Z" fill="url(#witchHairGrad)" />
-
-          <!-- Witch Hat Brim -->
-          <ellipse class="witch-part part-hat-brim" cx="50" cy="40" rx="36" ry="9" fill="url(#witchHatGrad)" stroke="#522b5b" stroke-width="1.2" />
-
-          <!-- Witch Hat Ribbon -->
-          <path d="M 33 39 Q 50 44 67 39 Q 66 35 64 33 Q 50 38 36 33 Z" fill="#ebbcba" />
-          
-          <!-- Golden Moon Buckle on Ribbon -->
-          <path d="M 50 34 A 4 4 0 0 0 54 39 A 3 3 0 0 1 51 36 A 3 3 0 0 1 50 34 Z" fill="#f6c177" />
-
-          <!-- Witch Hat Cone -->
-          <path class="witch-part part-hat-cone" d="M 36 35 Q 48 10 56 6 Q 59 4 60 7 Q 56 18 64 35 Z" fill="url(#witchHatGrad)" stroke="#522b5b" stroke-width="1.2" />
-
-          <!-- Hat Star Tip -->
-          <polygon points="60,3 62,7 66,7 63,10 64,14 60,11 56,14 57,10 54,7 58,7" fill="#f6c177" class="hat-star" />
-        </svg>
-
-        <!-- Floating Star Particles -->
-        <div class="magic-sparkle sparkle-1">✦</div>
-        <div class="magic-sparkle sparkle-2">✧</div>
-      </div>
+      <!-- Dynamic Character Component injected here -->
+      <div id="character-mount"></div>
     </div>
 
     <!-- Quick Floating Action Overlay (Appears on Hover) -->
     <div class="companion-quick-bar">
       <button id="btn-interact" class="quick-btn" title="Talk / Pet Hesper" aria-label="Interact">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <circle cx="8" cy="10" r="1" fill="currentColor"/>
+          <circle cx="12" cy="10" r="1" fill="currentColor"/>
+          <circle cx="16" cy="10" r="1" fill="currentColor"/>
         </svg>
       </button>
 
       <button id="btn-open-hub" class="quick-btn" title="Open Grimoire & Settings" aria-label="Open Hub">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-          <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="6"/>
+          <path d="M12 2a10 10 0 0 1 10 10c0 4.14-2.52 7.7-6.14 9.17"/>
+          <path d="M12 2a10 10 0 0 0-10 10c0 4.14 2.52 7.7 6.14 9.17"/>
         </svg>
       </button>
 
       <button id="btn-pin-window" class="quick-btn" title="Toggle Always on Top" aria-label="Pin">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
           <path d="M16 9V4l1 0V2H7v2l1 0v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/>
         </svg>
       </button>
     </div>
   </div>
 
+  <script src="../common/icons.js"></script>
+  <script src="../common/characterComponent.js"></script>
   <script src="companion.js"></script>
 </body>
 </html>

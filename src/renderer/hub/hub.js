@@ -46,6 +46,36 @@ window.familiarHubAPI.onTabRequested((targetTab) => {
 });
 
 /* ========================================================
+   ICON INITIALIZATION
+======================================================== */
+function initStaticIcons() {
+  const iconMappings = {
+    'nav-icon-companion': 'companion',
+    'nav-icon-focus': 'focus',
+    'nav-icon-tasks': 'tasks',
+    'nav-icon-activity': 'activity',
+    'nav-icon-inventory': 'inventory',
+    'nav-icon-minigames': 'minigames',
+    'nav-icon-settings': 'settings',
+    'sidebar-shield-icon': 'shield',
+    'header-stardust-icon': 'stardust',
+    'icon-btn-talk': 'talk',
+    'icon-btn-tea': 'tea',
+    'icon-btn-study': 'study',
+    'icon-btn-rest': 'rest',
+    'activity-shield-icon': 'shield',
+    'cauldron-svg-mount': 'cauldron'
+  };
+
+  for (const [elementId, iconName] of Object.entries(iconMappings)) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.innerHTML = getIconSvg(iconName);
+    }
+  }
+}
+
+/* ========================================================
    COMPANION SECTION
 ======================================================== */
 const companionElements = {
@@ -58,6 +88,8 @@ const companionElements = {
   xpBar: document.getElementById('companion-xp-bar'),
   moodDetail: document.getElementById('companion-mood-detail'),
   stateBadge: document.getElementById('companion-state-badge'),
+  roomWitchAvatar: document.getElementById('room-witch-avatar'),
+  sidebarWitchAvatar: document.getElementById('sidebar-witch-avatar'),
   btnTalk: document.getElementById('btn-action-talk'),
   btnTea: document.getElementById('btn-action-tea'),
   btnStudy: document.getElementById('btn-action-study'),
@@ -80,6 +112,15 @@ function renderCompanion(data) {
 
   if (data.dialogue) {
     companionElements.roomDialogue.textContent = `"${data.dialogue}"`;
+  }
+
+  // Render character in Sanctuary Room Scene & Sidebar
+  const state = data.currentState || 'idle';
+  if (companionElements.roomWitchAvatar) {
+    renderWitchCharacter(companionElements.roomWitchAvatar, { state, size: 'large' });
+  }
+  if (companionElements.sidebarWitchAvatar) {
+    renderWitchCharacter(companionElements.sidebarWitchAvatar, { state, size: 'compact' });
   }
 }
 
@@ -330,6 +371,7 @@ window.familiarHubAPI.activity.onUpdate((data) => {
    INVENTORY & POTION BREWING SECTION
 ======================================================== */
 const ingredientsGrid = document.getElementById('inventory-ingredients-grid');
+const sanctuaryCuriosGrid = document.getElementById('sanctuary-curios-grid');
 const brewIngredientsSelector = document.getElementById('brew-ingredients-selector');
 const brewSlot1 = document.getElementById('brew-slot-1');
 const brewSlot2 = document.getElementById('brew-slot-2');
@@ -341,36 +383,53 @@ const discoveredRecipesList = document.getElementById('discovered-recipes-list')
 let selectedBrewSlots = [null, null];
 
 const INGREDIENT_META = {
-  'moon-dew': { name: 'Moon Dew', icon: '💧', desc: 'Distilled starlight moisture' },
-  'starlight-moss': { name: 'Starlight Moss', icon: '🌿', desc: 'Glowing cave moss' },
-  'nightshade-petal': { name: 'Nightshade Petal', icon: '🌸', desc: 'Fragrant purple petal' },
-  'crystal-amber': { name: 'Crystal Amber', icon: '💎', desc: 'Fossilized magical resin' }
+  'moon-dew': { name: 'Moon Dew', iconKey: 'moon-dew', desc: 'Distilled starlight moisture' },
+  'starlight-moss': { name: 'Starlight Moss', iconKey: 'starlight-moss', desc: 'Glowing cave moss' },
+  'nightshade-petal': { name: 'Nightshade Petal', iconKey: 'nightshade-petal', desc: 'Fragrant purple petal' },
+  'crystal-amber': { name: 'Crystal Amber', iconKey: 'crystal-amber', desc: 'Fossilized magical resin' }
 };
+
+const CURIOS_META = [
+  { id: 'candle-cluster', name: 'Candle Cluster', iconKey: 'curio-candle', desc: 'Soft, warm amber glow', unlocked: true },
+  { id: 'amethyst-orb', name: 'Amethyst Orb', iconKey: 'curio-orb', desc: 'Unlocks at Level 3', unlocked: false },
+  { id: 'shadow-cat', name: 'Shadow Cat', iconKey: 'curio-cat', desc: 'Unlocks at Level 5', unlocked: false }
+];
 
 function renderInventory(inv) {
   if (!inv) return;
   const ingredients = inv.ingredients || {};
 
-  // Render satchel
+  // Render satchel reagents with clean SVGs
   ingredientsGrid.innerHTML = Object.entries(ingredients).map(([id, qty]) => {
-    const meta = INGREDIENT_META[id] || { name: id, icon: '✨', desc: 'Reagent' };
+    const meta = INGREDIENT_META[id] || { name: id, iconKey: 'companion', desc: 'Reagent' };
     return `
       <div class="ingredient-card">
-        <span class="ingredient-icon">${meta.icon}</span>
+        <div class="ingredient-icon-slot">${getIconSvg(meta.iconKey)}</div>
         <span class="ingredient-name">${meta.name}</span>
         <span class="ingredient-qty">x${qty}</span>
       </div>
     `;
   }).join('');
 
+  // Render curios with clean SVGs
+  if (sanctuaryCuriosGrid) {
+    sanctuaryCuriosGrid.innerHTML = CURIOS_META.map(curio => `
+      <div class="curio-card ${curio.unlocked ? 'unlocked' : 'locked'}">
+        <div class="curio-icon-slot">${getIconSvg(curio.iconKey)}</div>
+        <span class="curio-name">${curio.name}</span>
+        <span class="curio-desc">${curio.desc}</span>
+      </div>
+    `).join('');
+  }
+
   // Render brewing ingredient picker
   brewIngredientsSelector.innerHTML = Object.entries(ingredients)
     .filter(([_, qty]) => qty > 0)
     .map(([id, qty]) => {
-      const meta = INGREDIENT_META[id] || { name: id, icon: '✨' };
+      const meta = INGREDIENT_META[id] || { name: id, iconKey: 'companion' };
       return `
         <button class="picker-item" data-id="${id}">
-          <span>${meta.icon}</span>
+          <span style="width:16px;height:16px;display:inline-flex;">${getIconSvg(meta.iconKey)}</span>
           <span>${meta.name} (${qty})</span>
         </button>
       `;
@@ -396,8 +455,8 @@ function renderInventory(inv) {
     discoveredRecipesList.innerHTML = '<div class="empty-state">No recipes discovered yet. Experiment with combinations!</div>';
   } else {
     discoveredRecipesList.innerHTML = recipes.map(r => `
-      <div class="recipe-entry" style="padding: 6px 10px; background: rgba(26,18,34,0.6); border-radius: 6px; font-size: 0.8rem;">
-        🧪 <strong>${escapeHtml(r.name)}</strong>: ${escapeHtml(r.description || 'A magical elixir')}
+      <div class="recipe-entry" style="padding: 7px 12px; background: rgba(26,16,34,0.65); border: 1px solid var(--border-card); border-radius: 6px; font-size: 0.8rem;">
+        <strong style="color:var(--accent-gold-bright);">✦ ${escapeHtml(r.name)}</strong>: <span style="color:var(--text-secondary);">${escapeHtml(r.description || 'A magical elixir')}</span>
       </div>
     `).join('');
   }
@@ -407,9 +466,9 @@ function updateBrewSlots() {
   [brewSlot1, brewSlot2].forEach((slot, idx) => {
     const ingId = selectedBrewSlots[idx];
     if (ingId) {
-      const meta = INGREDIENT_META[ingId] || { name: ingId, icon: '✨' };
+      const meta = INGREDIENT_META[ingId] || { name: ingId, iconKey: 'companion' };
       slot.classList.add('filled');
-      slot.innerHTML = `<span>${meta.icon}</span><span>${meta.name}</span>`;
+      slot.innerHTML = `<span style="width:20px;height:20px;">${getIconSvg(meta.iconKey)}</span><span>${meta.name}</span>`;
     } else {
       slot.classList.remove('filled');
       slot.innerHTML = 'Empty';
@@ -432,7 +491,7 @@ btnBrewPotion.addEventListener('click', async () => {
   brewResultMessage.textContent = 'Stirring cauldron with lavender essence...';
 
   const result = await window.familiarHubAPI.inventory.craftPotion(selectedBrewSlots);
-  brewResultMessage.innerHTML = `✨ <strong>${escapeHtml(result.name)}</strong>: ${escapeHtml(result.message)}`;
+  brewResultMessage.innerHTML = `✦ <strong style="color:var(--accent-gold-bright);">${escapeHtml(result.name)}</strong>: ${escapeHtml(result.message)}`;
 
   selectedBrewSlots = [null, null];
   updateBrewSlots();
@@ -555,4 +614,7 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-document.addEventListener('DOMContentLoaded', refreshAllData);
+document.addEventListener('DOMContentLoaded', () => {
+  initStaticIcons();
+  refreshAllData();
+});

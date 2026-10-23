@@ -1,47 +1,75 @@
-/* Cozy Gothic & Dark Academia Magical Theme Tokens */
+/* Cozy Gothic Fantasy & Dark Academia Design System */
 :root {
   /* Core Backgrounds */
-  --bg-deep-void: #0d0a11;
-  --bg-charcoal: #141018;
-  --bg-midnight: #191422;
-  --bg-plum-card: rgba(36, 25, 48, 0.75);
-  --bg-plum-card-hover: rgba(48, 33, 64, 0.85);
-  --bg-card-border: rgba(184, 169, 201, 0.18);
-  --bg-card-border-active: rgba(246, 193, 119, 0.45);
+  --bg-deep-void: #0d0813;
+  --bg-charcoal: #130c1a;
+  --bg-midnight: #191022;
+  --bg-surface-elevated: #21152d;
+  --bg-surface-hover: #2c1c3c;
+  --bg-card: rgba(30, 19, 42, 0.78);
+  --bg-card-hover: rgba(42, 27, 58, 0.88);
 
-  /* Witchy & Academia Accents */
-  --accent-plum: #522b5b;
+  /* Borders & Dividers */
+  --border-subtle: rgba(196, 167, 231, 0.15);
+  --border-card: rgba(196, 167, 231, 0.18);
+  --border-card-hover: rgba(224, 172, 89, 0.45);
+  --border-gold: rgba(224, 172, 89, 0.5);
+
+  /* Antique Gold Accents */
+  --accent-gold: #e0ac59;
+  --accent-gold-bright: #f5c97a;
+  --accent-gold-dark: #b88533;
+  --accent-gold-glow: rgba(224, 172, 89, 0.28);
+
+  /* Soft Lavender & Muted Violet */
+  --accent-plum: #4e265c;
+  --accent-plum-deep: #32163b;
   --accent-lavender: #c4a7e7;
-  --accent-lavender-subtle: #988bc7;
-  --accent-candlelight: #f6c177;
-  --accent-candlelight-glow: rgba(246, 193, 119, 0.35);
-  --accent-potion-rose: #eb6f92;
-  --accent-magic-teal: #9ccfd8;
-  --accent-success-emerald: #56949f;
+  --accent-lavender-dim: #988bc7;
+  --accent-lavender-glow: rgba(196, 167, 231, 0.25);
 
-  /* Text Colors */
-  --text-main: #e0def4;
-  --text-muted: #908caa;
-  --text-dim: #6e6a86;
-  --text-candlelight: #f6c177;
+  /* Warm Candlelight */
+  --accent-candle: #f8d594;
+  --accent-candle-glow: rgba(248, 213, 148, 0.28);
+  --accent-amber: #eab464;
 
-  /* Typography */
+  /* Jewel Tones for Reagents & Status */
+  --jewel-teal: #82c4cc;
+  --jewel-teal-bg: rgba(130, 196, 204, 0.15);
+  --jewel-rose: #d66d87;
+  --jewel-rose-bg: rgba(214, 109, 135, 0.15);
+  --jewel-emerald: #5e9c8f;
+  --jewel-emerald-bg: rgba(94, 156, 143, 0.15);
+
+  /* Typography Colors */
+  --text-primary: #eee8f5;
+  --text-parchment: #f6edd9;
+  --text-secondary: #a99ec0;
+  --text-muted: #827896;
+  --text-dim: #5c526f;
+  --text-gold: #f5c97a;
+
+  /* Font Families */
   --font-serif: "Cinzel", "Crimson Pro", "Georgia", serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "Fira Code", "Consolas", monospace;
 
-  /* Shadows & Glows */
-  --shadow-cozy: 0 8px 32px 0 rgba(7, 4, 12, 0.6);
-  --shadow-candle: 0 0 20px rgba(246, 193, 119, 0.25);
-  --shadow-magic: 0 0 24px rgba(196, 167, 231, 0.3);
-  --border-radius-sm: 6px;
-  --border-radius-md: 12px;
-  --border-radius-lg: 18px;
-  --border-radius-pill: 9999px;
+  /* Atmospheric Shadows */
+  --shadow-cozy: 0 10px 30px rgba(7, 3, 11, 0.65);
+  --shadow-candle: 0 0 24px rgba(248, 213, 148, 0.22);
+  --shadow-gold: 0 0 20px rgba(224, 172, 89, 0.3);
+  --shadow-magic: 0 0 24px rgba(196, 167, 231, 0.25);
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
 
   /* Transitions */
-  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-smooth: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Base resets & typography */
@@ -55,80 +83,247 @@
 
 body {
   font-family: var(--font-sans);
-  color: var(--text-main);
+  color: var(--text-primary);
   background-color: transparent;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar styling */
+/* Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(13, 10, 17, 0.4);
-  border-radius: 4px;
+  background: rgba(13, 8, 19, 0.5);
+  border-radius: var(--radius-xs);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(196, 167, 231, 0.25);
-  border-radius: 4px;
+  background: rgba(196, 167, 231, 0.22);
+  border-radius: var(--radius-xs);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(246, 193, 119, 0.4);
+  background: rgba(224, 172, 89, 0.45);
 }
 
-/* Glassmorphism Card Utility */
+/* Card Components */
 .glass-panel {
-  background: var(--bg-plum-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--bg-card-border);
-  border-radius: var(--border-radius-md);
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-cozy);
-  transition: all var(--transition-smooth);
+  transition: border-color var(--trans-smooth), box-shadow var(--trans-smooth);
 }
 
 .glass-panel:hover {
-  border-color: var(--bg-card-border-active);
+  border-color: var(--border-card-hover);
 }
 
-/* Buttons */
+/* Fantasy Buttons */
 .btn-magical {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   font-family: var(--font-sans);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  color: var(--text-main);
-  background: linear-gradient(135deg, rgba(82, 43, 91, 0.8), rgba(40, 20, 48, 0.9));
-  border: 1px solid var(--bg-card-border);
-  border-radius: var(--border-radius-sm);
+  letter-spacing: 0.2px;
+  color: var(--text-primary);
+  background: linear-gradient(180deg, rgba(58, 32, 70, 0.75) 0%, rgba(35, 18, 44, 0.85) 100%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--trans-fast);
 }
 
 .btn-magical:hover {
-  background: linear-gradient(135deg, rgba(120, 60, 130, 0.9), rgba(55, 30, 65, 0.95));
+  background: linear-gradient(180deg, rgba(82, 45, 98, 0.85) 0%, rgba(48, 24, 60, 0.95) 100%);
   border-color: var(--accent-lavender);
-  box-shadow: var(--shadow-magic);
+  box-shadow: 0 2px 12px var(--accent-lavender-glow);
   color: #fff;
   transform: translateY(-1px);
 }
 
+.btn-magical:active {
+  transform: translateY(0);
+}
+
+.btn-magical:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
 .btn-candlelight {
-  background: linear-gradient(135deg, #f6c177, #ea9d34);
-  color: #141018;
+  background: linear-gradient(180deg, #f5c97a 0%, #d49b42 100%);
+  color: #140c1a;
   font-weight: 600;
-  border: 1px solid #f6c177;
+  border: 1px solid #e0ac59;
 }
 
 .btn-candlelight:hover {
-  background: linear-gradient(135deg, #fcd599, #f6c177);
-  box-shadow: var(--shadow-candle);
-  color: #0d0a11;
+  background: linear-gradient(180deg, #fae0a8 0%, #e0ac59 100%);
+  box-shadow: 0 0 16px var(--accent-gold-glow);
+  color: #0d0813;
   transform: translateY(-1px);
+}
+
+/* Character Animations (Breathing, Blinking, Props) */
+.hesper-avatar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hesper-character-svg {
+  filter: drop-shadow(0 8px 16px rgba(8, 3, 13, 0.7));
+  transform-origin: 50% 85%;
+}
+
+/* Idle Floating */
+.state-idle .hesper-character-svg {
+  animation: hesperBreathe 3.6s ease-in-out infinite;
+}
+
+@keyframes hesperBreathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.015); }
+}
+
+/* Blinking Eyes */
+.witch-blinking-eyes {
+  animation: hesperBlink 5s infinite;
+  transform-origin: 50px 52px;
+}
+
+@keyframes hesperBlink {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+
+/* Hat Star Sparkle */
+.hat-star-sparkle {
+  animation: starGlint 2.8s ease-in-out infinite alternate;
+  transform-origin: 60px 8px;
+}
+
+@keyframes starGlint {
+  0% { transform: scale(0.9) rotate(0deg); opacity: 0.8; filter: none; }
+  100% { transform: scale(1.25) rotate(12deg); opacity: 1; filter: drop-shadow(0 0 5px #f5c97a); }
+}
+
+/* Studying Animation */
+.state-study .hesper-character-svg,
+.state-reading .hesper-character-svg {
+  animation: hesperStudy 4s ease-in-out infinite;
+}
+
+@keyframes hesperStudy {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Sleeping Animation */
+.state-sleep .hesper-character-svg,
+.state-sleeping .hesper-character-svg {
+  animation: hesperSnooze 4.2s ease-in-out infinite;
+}
+
+@keyframes hesperSnooze {
+  0%, 100% { transform: translateY(2px) rotate(-1.5deg); }
+  50% { transform: translateY(4px) rotate(1.5deg); }
+}
+
+.sleep-z {
+  animation: floatZ 3s ease-out infinite;
+}
+.sleep-z.z2 {
+  animation-delay: 1.5s;
+}
+
+@keyframes floatZ {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  40% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-16px) scale(1.1); }
+}
+
+/* Brewing Animation */
+.state-brew .hesper-character-svg,
+.state-brewing .hesper-character-svg {
+  animation: hesperStir 2.2s ease-in-out infinite;
+}
+
+@keyframes hesperStir {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+.brew-steam {
+  animation: bubbleRise 2s ease-out infinite;
+}
+.brew-steam.s2 { animation-delay: 0.7s; }
+.brew-steam.s3 { animation-delay: 1.4s; }
+
+@keyframes bubbleRise {
+  0% { transform: translateY(0); opacity: 0; }
+  40% { opacity: 0.8; }
+  100% { transform: translateY(-12px); opacity: 0; }
+}
+
+/* Celebrate Animation */
+.state-celebrate .hesper-character-svg,
+.state-celebrating .hesper-character-svg {
+  animation: hesperCelebrate 1.2s ease-in-out infinite;
+}
+
+@keyframes hesperCelebrate {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.04); }
+}
+
+.celebrate-sparkle {
+  animation: starPulse 1s infinite alternate;
+  transform-origin: 73px 55px;
+}
+
+@keyframes starPulse {
+  0% { transform: scale(0.8) rotate(0deg); opacity: 0.7; }
+  100% { transform: scale(1.4) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 6px #f5c97a); }
+}
+
+/* Resting Animation */
+.state-rest .hesper-character-svg,
+.state-resting .hesper-character-svg {
+  animation: hesperRest 3.8s ease-in-out infinite;
+}
+
+@keyframes hesperRest {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.tea-steam {
+  animation: teaRise 2.5s ease-out infinite;
+}
+
+@keyframes teaRise {
+  0% { opacity: 0; transform: translateY(0); }
+  50% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,0 +1,6 @@
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(30 12 12)"/>
+      <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+      <circle cx="18" cy="8.5" r="1.5" fill="currentColor"/>
+    </svg>

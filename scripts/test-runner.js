@@ -42,7 +42,9 @@ runTest('All core source files exist', () => {
     'src/renderer/hub/index.html',
     'src/renderer/hub/hub.css',
     'src/renderer/hub/hub.js',
-    'src/renderer/common/theme.css'
+    'src/renderer/common/theme.css',
+    'src/renderer/common/icons.js',
+    'src/renderer/common/characterComponent.js'
   ];
 
   for (const rel of expectedFiles) {

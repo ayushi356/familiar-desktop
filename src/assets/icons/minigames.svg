@@ -1,0 +1,7 @@
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 2v5.5L5 18a3 3 0 0 0 3 4h8a3 3 0 0 0 3-4l-5-10.5V2"/>
+      <line x1="8.5" y1="2" x2="15.5" y2="2"/>
+      <path d="M7 16h10" stroke-dasharray="1 2"/>
+      <circle cx="10" cy="18" r="1" fill="currentColor"/>
+      <circle cx="14" cy="17" r="1.5" fill="currentColor"/>
+    </svg>
