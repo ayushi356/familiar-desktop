@@ -1,0 +1,22 @@
+{
+  "name": "familiar-desktop",
+  "version": "0.1.0",
+  "description": "Familiar — A Magical Desktop Companion",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node scripts/test-runner.js"
+  },
+  "keywords": [
+    "desktop-pet",
+    "productivity",
+    "focus-timer",
+    "electron",
+    "magical-companion"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^45.0.0"
+  }
+}

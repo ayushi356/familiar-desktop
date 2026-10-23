@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Familiar — Companion Sanctuary</title>
+  <link rel="stylesheet" href="../common/theme.css">
+  <link rel="stylesheet" href="hub.css">
+</head>
+<body>
+  <div class="hub-app">
+    <!-- Custom Dark Academia Titlebar -->
+    <header class="hub-titlebar">
+      <div class="titlebar-drag-region">
+        <div class="brand">
+          <span class="brand-icon">✦</span>
+          <span class="brand-title">Familiar</span>
+          <span class="brand-subtitle">Sanctuary</span>
+        </div>
+      </div>
+      <div class="titlebar-controls">
+        <button id="btn-win-min" class="win-btn" title="Minimize" aria-label="Minimize">
+          <svg viewBox="0 0 10 1" width="10" height="1"><path d="M0 0h10v1H0z" fill="currentColor"/></svg>
+        </button>
+        <button id="btn-win-close" class="win-btn win-close" title="Close to Tray" aria-label="Close">
+          <svg viewBox="0 0 10 10" width="10" height="10"><path d="M1 0L0 1l4 4-4 4 1 1 4-4 4 4 1-1-4-4 4-4-1-1-4 4z" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Hub Body -->
+    <div class="hub-layout">
+      <!-- Sidebar Navigation -->
+      <nav class="hub-sidebar" aria-label="Navigation">
+        <div class="companion-mini-profile">
+          <div class="avatar-glow">
+            <div id="sidebar-witch-avatar" class="sidebar-avatar">🧙‍♀️</div>
+          </div>
+          <div class="profile-info">
+            <h3 id="sidebar-companion-name">Hesper</h3>
+            <span id="sidebar-companion-mood" class="mood-badge">Cozy</span>
+          </div>
+        </div>
+
+        <ul class="nav-links">
+          <li>
+            <button class="nav-item active" data-tab="tab-companion">
+              <span class="nav-icon">🔮</span>
+              <span class="nav-text">Companion</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-tab="tab-focus">
+              <span class="nav-icon">⏳</span>
+              <span class="nav-text">Focus Timer</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-tab="tab-tasks">
+              <span class="nav-icon">📜</span>
+              <span class="nav-text">Tasks</span>
+              <span id="task-badge-count" class="nav-badge">0</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-tab="tab-activity">
+              <span class="nav-icon">📊</span>
+              <span class="nav-text">Activity</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-tab="tab-inventory">
+              <span class="nav-icon">🎒</span>
+              <span class="nav-text">Inventory</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-tab="tab-minigames">
+              <span class="nav-icon">🧪</span>
+              <span class="nav-text">Potion Brewing</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-tab="tab-settings">
+              <span class="nav-icon">⚙️</span>
+              <span class="nav-text">Settings</span>
+            </button>
+          </li>
+        </ul>
+
+        <!-- Privacy Status in Sidebar Footer -->
+        <div class="sidebar-footer">
+          <div class="privacy-indicator">
+            <span class="privacy-dot"></span>
+            <span class="privacy-text">Local Only • Private</span>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="hub-content">
+        <!-- TAB 1: COMPANION -->
+        <section id="tab-companion" class="tab-pane active">
+          <div class="pane-header">
+            <div>
+              <h2>Companion Sanctuary</h2>
+              <p class="subtitle">Spend quiet moments with your desk familiar</p>
+            </div>
+            <div class="stardust-counter">
+              <span class="star-icon">✨</span>
+              <span id="companion-stardust">50</span>
+              <span class="counter-label">Stardust</span>
+            </div>
+          </div>
+
+          <div class="companion-sanctuary-grid">
+            <!-- Left: Character Stage & Room -->
+            <div class="glass-panel character-room-card">
+              <div class="room-visual">
+                <div class="room-candle">🕯️</div>
+                <div class="room-shelf">📚</div>
+                <div class="room-plant">🌿</div>
+                <div id="room-witch-avatar" class="room-witch">
+                  <!-- Witch Silhouette/Avatar -->
+                  <div class="witch-large-avatar">🧙‍♀️</div>
+                </div>
+              </div>
+
+              <div class="dialogue-box">
+                <div class="dialogue-speaker">Hesper whispers:</div>
+                <div id="room-dialogue-text" class="dialogue-content">
+                  "The afternoon air smells of parchment and dried lavender. What shall we achieve today?"
+                </div>
+              </div>
+
+              <!-- Interaction Buttons -->
+              <div class="interaction-buttons">
+                <button class="btn-magical" id="btn-action-talk">💬 Talk</button>
+                <button class="btn-magical" id="btn-action-tea">🍵 Offer Tea</button>
+                <button class="btn-magical" id="btn-action-study">📖 Study Together</button>
+                <button class="btn-magical" id="btn-action-rest">🌙 Rest</button>
+              </div>
+            </div>
+
+            <!-- Right: Stats & Bonds -->
+            <div class="glass-panel stats-card">
+              <h3 class="card-title">Companion Bond</h3>
+              
+              <div class="stat-group">
+                <div class="stat-header">
+                  <span>Level <strong id="companion-level">1</strong></span>
+                  <span id="companion-xp-text">0 / 100 XP</span>
+                </div>
+                <div class="meter-bar">
+                  <div id="companion-xp-bar" class="meter-fill" style="width: 15%;"></div>
+                </div>
+              </div>
+
+              <div class="stat-group">
+                <div class="stat-header">
+                  <span>Current Mood</span>
+                  <span id="companion-mood-detail" class="mood-text">Cozy & Curious</span>
+                </div>
+              </div>
+
+              <div class="stat-group">
+                <div class="stat-header">
+                  <span>Active State</span>
+                  <span id="companion-state-badge" class="badge-state">Idle</span>
+                </div>
+              </div>
+
+              <div class="lore-note">
+                <h4>Witch's Grimoire Note</h4>
+                <p>Complete focus sessions and mark tasks finished to gather magical stardust and unlock ancient recipes.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: FOCUS TIMER -->
+        <section id="tab-focus" class="tab-pane">
+          <div class="pane-header">
+            <div>
+              <h2>Focus Session</h2>
+              <p class="subtitle">Set intentional intervals for deep, undisturbed work</p>
+            </div>
+            <div id="focus-session-type-badge" class="session-badge">Pomodoro</div>
+          </div>
+
+          <div class="focus-grid">
+            <div class="glass-panel timer-display-card">
+              <div class="timer-mode-selector">
+                <button class="timer-mode-btn active" data-minutes="25">25m Focus</button>
+                <button class="timer-mode-btn" data-minutes="45">45m Deep</button>
+                <button class="timer-mode-btn" data-minutes="5">5m Break</button>
+                <button class="timer-mode-btn" data-minutes="15">15m Long Break</button>
+              </div>
+
+              <!-- Main Circular / Digital Display -->
+              <div class="timer-circle-wrapper">
+                <div class="timer-digital" id="focus-timer-text">25:00</div>
+                <div class="timer-status-sub" id="focus-state-label">Ready to begin</div>
+              </div>
+
+              <!-- Current Focus Goal Input -->
+              <div class="goal-input-box">
+                <label for="focus-goal-input">Intentional Goal:</label>
+                <input type="text" id="focus-goal-input" placeholder="e.g., Implement window tracking logic..." maxlength="80">
+              </div>
+
+              <!-- Timer Controls -->
+              <div class="timer-actions">
+                <button id="btn-focus-start" class="btn-magical btn-candlelight">Start Session</button>
+                <button id="btn-focus-pause" class="btn-magical" disabled>Pause</button>
+                <button id="btn-focus-stop" class="btn-magical" disabled>Reset</button>
+              </div>
+            </div>
+
+            <!-- Focus Stats -->
+            <div class="glass-panel focus-stats-card">
+              <h3 class="card-title">Session Log</h3>
+              <div class="stat-summary-boxes">
+                <div class="summary-box">
+                  <span class="summary-num" id="stat-focus-completed">0</span>
+                  <span class="summary-label">Sessions Completed</span>
+                </div>
+                <div class="summary-box">
+                  <span class="summary-num" id="stat-focus-total-minutes">0</span>
+                  <span class="summary-label">Focus Minutes</span>
+                </div>
+              </div>
+
+              <h4 style="margin-top: 20px; font-size: 0.9rem; color: var(--accent-lavender);">Focus Tip</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+                Taking regular short breaks protects your eyes and restores creative energy. Hesper will brew tea while you rest.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: TASKS -->
+        <section id="tab-tasks" class="tab-pane">
+          <div class="pane-header">
+            <div>
+              <h2>Grimoire Task List</h2>
+              <p class="subtitle">Prioritize your goals and record your accomplishments</p>
+            </div>
+            <div class="task-filters">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="active">Active</button>
+              <button class="filter-btn" data-filter="completed">Done</button>
+            </div>
+          </div>
+
+          <!-- Add Task Form -->
+          <div class="glass-panel task-creation-box">
+            <input type="text" id="new-task-title" placeholder="Add a new task or incantation..." maxlength="100">
+            <select id="new-task-priority" title="Priority">
+              <option value="medium">Medium Priority</option>
+              <option value="high">High Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+            <input type="date" id="new-task-duedate" title="Due Date (optional)">
+            <button id="btn-add-task" class="btn-magical btn-candlelight">+ Add</button>
+          </div>
+
+          <!-- Task Items List -->
+          <div id="tasks-container" class="tasks-list">
+            <!-- Dynamic task items injected via JavaScript -->
+          </div>
+        </section>
+
+        <!-- TAB 4: ACTIVITY MONITOR -->
+        <section id="tab-activity" class="tab-pane">
+          <div class="pane-header">
+            <div>
+              <h2>Local Activity Tracker</h2>
+              <p class="subtitle">On-device privacy-first application tracking</p>
+            </div>
+            <div class="monitoring-toggle-group">
+              <label class="switch-label" for="toggle-monitoring">
+                <span id="monitoring-status-label">Monitoring: Active</span>
+                <input type="checkbox" id="toggle-monitoring" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Privacy Notice Card -->
+          <div class="glass-panel privacy-banner">
+            <div class="privacy-icon">🛡️</div>
+            <div class="privacy-info">
+              <strong>Your Data Stays on Your Machine</strong>
+              <p>Familiar only checks which application window is currently active and whether you are idle. No keystrokes, screenshots, or URLs are ever recorded or transmitted.</p>
+            </div>
+          </div>
+
+          <!-- Activity Breakdown Overview -->
+          <div class="activity-overview-grid">
+            <div class="glass-panel time-card productive">
+              <span class="time-label">Productive</span>
+              <span id="time-productive" class="time-val">0m</span>
+            </div>
+            <div class="glass-panel time-card neutral">
+              <span class="time-label">Neutral</span>
+              <span id="time-neutral" class="time-val">0m</span>
+            </div>
+            <div class="glass-panel time-card distracting">
+              <span class="time-label">Distracting</span>
+              <span id="time-distracting" class="time-val">0m</span>
+            </div>
+            <div class="glass-panel time-card idle">
+              <span class="time-label">Idle Time</span>
+              <span id="time-idle" class="time-val">0m</span>
+            </div>
+          </div>
+
+          <!-- Top Applications Breakdown -->
+          <div class="glass-panel top-apps-card">
+            <h3 class="card-title">Today's Application Breakdown</h3>
+            <div id="apps-breakdown-list" class="apps-breakdown-list">
+              <div class="empty-state">No application activity recorded yet today.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 5: INVENTORY -->
+        <section id="tab-inventory" class="tab-pane">
+          <div class="pane-header">
+            <div>
+              <h2>Witch's Satchel & Curios</h2>
+              <p class="subtitle">Ingredients and magical artifacts gathered on your journey</p>
+            </div>
+          </div>
+
+          <div class="glass-panel inventory-section">
+            <h3 class="section-title">Brewing Ingredients</h3>
+            <div id="inventory-ingredients-grid" class="ingredients-grid">
+              <!-- Dynamically populated ingredients -->
+            </div>
+          </div>
+
+          <div class="glass-panel inventory-section" style="margin-top: 16px;">
+            <h3 class="section-title">Unlocked Sanctuary Curios</h3>
+            <div class="curios-grid">
+              <div class="curio-card unlocked">
+                <span class="curio-icon">🕯️</span>
+                <span class="curio-name">Candle Cluster</span>
+                <span class="curio-desc">Soft, warm amber glow</span>
+              </div>
+              <div class="curio-card locked">
+                <span class="curio-icon">🔮</span>
+                <span class="curio-name">Amethyst Orb</span>
+                <span class="curio-desc">Unlocks at Level 3</span>
+              </div>
+              <div class="curio-card locked">
+                <span class="curio-icon">🐈‍⬛</span>
+                <span class="curio-name">Shadow Cat</span>
+                <span class="curio-desc">Unlocks at Level 5</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 6: MINI-GAMES (POTION BREWING) -->
+        <section id="tab-minigames" class="tab-pane">
+          <div class="pane-header">
+            <div>
+              <h2>Alchemical Potion Brewing</h2>
+              <p class="subtitle">Combine magical ingredients in the bubbling cauldron</p>
+            </div>
+          </div>
+
+          <div class="brewing-layout">
+            <!-- Left: Cauldron Workshop -->
+            <div class="glass-panel cauldron-workshop">
+              <div class="cauldron-container">
+                <div class="cauldron-steam">🫧</div>
+                <div class="cauldron-graphic">🥣</div>
+                <div class="cauldron-glow"></div>
+              </div>
+
+              <!-- Selected Slots -->
+              <div class="selected-slots-area">
+                <span class="slots-label">Selected Ingredients:</span>
+                <div class="slots-row">
+                  <div id="brew-slot-1" class="brew-slot" data-slot="0">Empty</div>
+                  <span class="plus-sign">+</span>
+                  <div id="brew-slot-2" class="brew-slot" data-slot="1">Empty</div>
+                </div>
+              </div>
+
+              <div class="brewing-actions">
+                <button id="btn-brew-potion" class="btn-magical btn-candlelight" disabled>Stir & Brew Potion</button>
+                <button id="btn-clear-slots" class="btn-magical">Clear Slots</button>
+              </div>
+
+              <div id="brew-result-message" class="brew-result"></div>
+            </div>
+
+            <!-- Right: Recipe Discovery Log & Available Ingredients -->
+            <div class="glass-panel recipe-book">
+              <h3 class="card-title">Available Ingredients</h3>
+              <div id="brew-ingredients-selector" class="brew-picker-list">
+                <!-- Dynamically filled with clickable ingredients from satchel -->
+              </div>
+
+              <h3 class="card-title" style="margin-top: 24px;">Discovered Recipes</h3>
+              <div id="discovered-recipes-list" class="recipe-entries">
+                <div class="empty-state">No recipes discovered yet. Experiment with combinations!</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 7: SETTINGS -->
+        <section id="tab-settings" class="tab-pane">
+          <div class="pane-header">
+            <div>
+              <h2>Sanctuary Settings</h2>
+              <p class="subtitle">Configure preferences, focus intervals, and privacy rules</p>
+            </div>
+            <button id="btn-save-settings" class="btn-magical btn-candlelight">Save Settings</button>
+          </div>
+
+          <div class="settings-list">
+            <!-- Window & Appearance -->
+            <div class="glass-panel settings-group">
+              <h3>Desktop Companion Appearance</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <strong>Always On Top</strong>
+                  <span>Keep the floating witch companion visible above all other windows</span>
+                </div>
+                <input type="checkbox" id="setting-always-on-top" checked>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <strong>Companion Name</strong>
+                  <span>Give your witch companion a custom name</span>
+                </div>
+                <input type="text" id="setting-companion-name" value="Hesper" maxlength="20" class="input-text-sm">
+              </div>
+            </div>
+
+            <!-- Focus & Reminders -->
+            <div class="glass-panel settings-group">
+              <h3>Focus & Reminders</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <strong>Gentle Reminders</strong>
+                  <span>Allow Hesper to check in if you spend prolonged time in distracting apps</span>
+                </div>
+                <input type="checkbox" id="setting-reminders-enabled" checked>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <strong>Idle Detection Threshold</strong>
+                  <span>Minutes of inactivity before marking the computer as idle</span>
+                </div>
+                <input type="number" id="setting-idle-threshold" min="1" max="60" value="5" class="input-num-sm">
+              </div>
+            </div>
+
+            <!-- Privacy & App Rules -->
+            <div class="glass-panel settings-group">
+              <h3>Activity Classification Rules</h3>
+              <p class="setting-desc">Classify apps into categories. Windows process names are matched locally.</p>
+              
+              <div class="app-rules-editor">
+                <div class="rule-add-row">
+                  <input type="text" id="new-rule-process" placeholder="Process (e.g. code, blender, chrome)">
+                  <select id="new-rule-category">
+                    <option value="productive">Productive</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="distracting">Distracting</option>
+                  </select>
+                  <button id="btn-add-rule" class="btn-magical">+ Add Rule</button>
+                </div>
+
+                <div id="rules-table-container" class="rules-table">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="hub.js"></script>
+</body>
+</html>
