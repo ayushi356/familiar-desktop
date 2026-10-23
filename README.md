@@ -1,10 +1,10 @@
-# Familiar — A Magical Desktop Companion 🧙‍♀️✨
+# Familiar — A Magical Desktop Companion
 
 **Familiar** is a personal Windows desktop companion combining a virtual witch character simulator, focus/productivity timer, potion-brewing mini-game, and an on-device local activity monitor.
 
 ---
 
-## 🔮 Overview & Aesthetics
+## Overview & Aesthetics
 
 - **Character:** Hesper, a cozy little witch who lives on your desktop.
 - **Visual Aesthetic:** Dark academia, deep plum, charcoal, muted lavender, midnight blue, warm candlelight, subtle floating animations, and rich glassmorphic cards.
@@ -13,7 +13,7 @@
 
 ---
 
-## 📁 Project Architecture & Directory Structure
+## Project Architecture & Directory Structure
 
 ```
 familiar-desktop/
@@ -60,7 +60,7 @@ Following secure Electron defaults:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Windows 10 or 11
@@ -87,7 +87,7 @@ npm test
 
 ---
 
-## 🎮 Features Implemented in Milestone 1
+## Features Implemented in Milestone 1
 
 1. **Floating Witch Companion (`Hesper`):**
    - Frameless, transparent desktop window floating in the bottom-right corner.
@@ -116,7 +116,7 @@ npm test
 
 ---
 
-## 🔒 Privacy & Monitoring Disclosure
+## Privacy & Monitoring Disclosure
 
 - **Operating System Calls:** Uses Windows API `user32.dll` (`GetForegroundWindow` / `GetWindowThreadProcessId`) and Electron `powerMonitor.getSystemIdleTime()`.
 - **Scope:** Reads only the executable process name (e.g. `code.exe`, `chrome.exe`) and idle seconds.
