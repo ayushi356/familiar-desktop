@@ -38,9 +38,10 @@ app.whenReady().then(() => {
   // 5. Register secure IPC communication channels
   registerIpcHandlers(store, windowManager, focusManager);
 
-  // 6. Create Windows
+  // 6. Create Windows (Floating Companion + Sanctuary Hub)
   windowManager.createCompanionWindow();
   windowManager.createHubWindow();
+  windowManager.showHub('companion');
 
   // 7. Initialize System Tray
   trayManager = new TrayManager(windowManager, store);

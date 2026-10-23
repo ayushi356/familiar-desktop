@@ -44,6 +44,11 @@ class WindowManager {
 
     this.companionWindow.loadFile(path.join(__dirname, '../renderer/companion/index.html'));
 
+    this.companionWindow.webContents.on('console-message', (event, ...rest) => {
+      const msg = event?.message || rest[1] || rest[0] || '';
+      console.log(`[Companion UI] ${msg}`);
+    });
+
     // Prevent navigation away from the application
     this.companionWindow.webContents.on('will-navigate', (event) => event.preventDefault());
 
@@ -74,6 +79,11 @@ class WindowManager {
     });
 
     this.hubWindow.loadFile(path.join(__dirname, '../renderer/hub/index.html'));
+
+    this.hubWindow.webContents.on('console-message', (event, ...rest) => {
+      const msg = event?.message || rest[1] || rest[0] || '';
+      console.log(`[Hub UI] ${msg}`);
+    });
 
     this.hubWindow.webContents.on('will-navigate', (event) => event.preventDefault());
 
