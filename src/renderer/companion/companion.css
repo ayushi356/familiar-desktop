@@ -18,7 +18,7 @@ html, body {
   padding-bottom: 28px;
 }
 
-/* Draggable character stage */
+/* Draggable & interactive character stage */
 .character-stage {
   position: relative;
   width: 140px;
@@ -26,14 +26,21 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  -webkit-app-region: drag;
   cursor: grab;
   user-select: none;
+  touch-action: none;
   filter: drop-shadow(0 10px 18px rgba(10, 4, 16, 0.7));
+  transition: transform var(--transition-fast);
 }
 
+.character-stage:hover {
+  transform: scale(1.03);
+}
+
+.character-stage.is-dragging,
 .character-stage:active {
   cursor: grabbing;
+  transform: scale(0.98);
 }
 
 /* Candlelight / Magical Aura behind witch */

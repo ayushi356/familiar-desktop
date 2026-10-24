@@ -17,6 +17,17 @@ contextBridge.exposeInMainWorld('familiarAPI', {
   // Toggle or get always on top setting
   toggleAlwaysOnTop: () => ipcRenderer.invoke('window:toggleAlwaysOnTop'),
 
+  // Dragging support (smooth positioning via main process)
+  dragStart: (data) => ipcRenderer.invoke('companion:dragStart', data),
+  dragMove: (data) => ipcRenderer.invoke('companion:dragMove', data),
+  dragEnd: () => ipcRenderer.invoke('companion:dragEnd'),
+  resetPosition: () => ipcRenderer.invoke('companion:resetPosition'),
+
+  // Interactive Popup controls
+  togglePopup: () => ipcRenderer.invoke('companion:togglePopup'),
+  closePopup: () => ipcRenderer.invoke('companion:closePopup'),
+  isPopupOpen: () => ipcRenderer.invoke('companion:isPopupOpen'),
+
   // Listen for state/dialogue changes pushed from main process
   onUpdate: (callback) => {
     const subscription = (event, data) => callback(data);
@@ -29,5 +40,12 @@ contextBridge.exposeInMainWorld('familiarAPI', {
     const subscription = (event, data) => callback(data);
     ipcRenderer.on('focus:tick', subscription);
     return () => ipcRenderer.removeListener('focus:tick', subscription);
+  },
+
+  // Popup visibility changes
+  onPopupVisibilityChanged: (callback) => {
+    const subscription = (event, isOpen) => callback(isOpen);
+    ipcRenderer.on('popup:visibilityChanged', subscription);
+    return () => ipcRenderer.removeListener('popup:visibilityChanged', subscription);
   }
 });

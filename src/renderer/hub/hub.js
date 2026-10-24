@@ -112,7 +112,7 @@ function renderCompanion(data) {
   companionElements.xpBar.style.width = `${Math.min(100, Math.floor((xp / xpMax) * 100))}%`;
 
   if (data.dialogue) {
-    companionElements.roomDialogue.textContent = `"${data.dialogue}"`;
+    companionElements.roomDialogue.textContent = `"${stripEmojisAndSparkles(data.dialogue)}"`;
   }
 
   // Render character in Sanctuary Room Scene & Sidebar
@@ -642,6 +642,16 @@ function formatMessageTime(timestamp) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+function stripEmojisAndSparkles(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+    .replace(/^[✦✧★☆*•\-–—\s]+/g, '')
+    .replace(/[✦✧★☆*•\-–—\s]+$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 function appendBubbleToStream(role, content, timestamp = Date.now(), isFallback = false) {
   if (!chatMessagesStream) return;
 
@@ -649,17 +659,18 @@ function appendBubbleToStream(role, content, timestamp = Date.now(), isFallback 
   bubble.className = `chat-bubble ${role === 'user' ? 'bubble-user' : 'bubble-hesper'}`;
 
   const timeStr = formatMessageTime(timestamp);
+  const cleanContent = stripEmojisAndSparkles(content);
 
   if (role === 'assistant') {
-    const senderTag = isFallback ? '✦ Hesper (Resting)' : '✦ Hesper';
+    const senderTag = isFallback ? 'Hesper (Resting)' : 'Hesper';
     bubble.innerHTML = `
       <div class="bubble-sender">${senderTag}</div>
-      <div class="bubble-text">${escapeHtml(content)}</div>
+      <div class="bubble-text">${escapeHtml(cleanContent)}</div>
       <div class="bubble-time">${timeStr}</div>
     `;
   } else {
     bubble.innerHTML = `
-      <div class="bubble-text">${escapeHtml(content)}</div>
+      <div class="bubble-text">${escapeHtml(cleanContent)}</div>
       <div class="bubble-time">${timeStr}</div>
     `;
   }
@@ -710,7 +721,7 @@ async function sendChatMessage(text) {
       appendBubbleToStream('assistant', result.reply, Date.now());
       // Update room dialogue scroll too
       if (companionElements.roomDialogue) {
-        companionElements.roomDialogue.textContent = `"${result.reply}"`;
+        companionElements.roomDialogue.textContent = `"${stripEmojisAndSparkles(result.reply)}"`;
       }
       // Revert character to idle
       if (companionElements.roomWitchAvatar) {
@@ -1063,5 +1074,13 @@ function escapeHtml(text) {
 document.addEventListener('DOMContentLoaded', () => {
   initStaticIcons();
   refreshAllData();
+
+  if (window.familiarHubAPI?.tasks?.onUpdate) {
+    window.familiarHubAPI.tasks.onUpdate(() => loadTasks());
+  }
+
+  if (window.familiarHubAPI?.ai?.onHistoryUpdated) {
+    window.familiarHubAPI.ai.onHistoryUpdated(() => loadChatHistory());
+  }
 });
 

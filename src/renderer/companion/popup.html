@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hesper — Desk Companion</title>
+  <link rel="stylesheet" href="../common/theme.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="popup-root" class="popup-card">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="header-left">
+        <div id="popup-avatar" class="popup-avatar"></div>
+        <div class="popup-profile">
+          <div class="popup-title-row">
+            <h3 id="popup-companion-name" class="companion-title">Hesper</h3>
+            <span id="popup-mood-badge" class="mood-pill">Cozy</span>
+          </div>
+          <span id="popup-bond-subtitle" class="bond-caption">Level 1 • Companion</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Live mini timer pill in header when running -->
+        <div id="header-focus-pill" class="header-focus-pill hidden" title="Active Focus Session">
+          <span class="focus-pulse-dot"></span>
+          <span id="header-focus-time">25:00</span>
+        </div>
+
+        <button id="btn-open-sanctuary" class="header-btn" title="Open Sanctuary" aria-label="Open Sanctuary">
+          <span class="btn-icon" id="icon-header-sanctuary"></span>
+        </button>
+        <button id="btn-close-popup" class="header-btn btn-close" title="Close (Escape)" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="popup-tabs" aria-label="Popup Navigation">
+      <button id="tab-btn-chat" class="tab-btn active" data-tab="tab-chat">
+        <span class="tab-icon" id="icon-tab-chat"></span>
+        <span class="tab-label">Whispers</span>
+      </button>
+      <button id="tab-btn-actions" class="tab-btn" data-tab="tab-actions">
+        <span class="tab-icon" id="icon-tab-actions"></span>
+        <span class="tab-label">Quick Spells</span>
+      </button>
+    </nav>
+
+    <!-- Main Views -->
+    <main class="popup-body">
+      <!-- TAB 1: AI CHAT (WHISPERS) -->
+      <section id="tab-chat" class="popup-tab-pane active">
+        <!-- Messages Stream -->
+        <div id="popup-chat-stream" class="chat-stream">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Thinking indicator -->
+        <div id="popup-typing-indicator" class="typing-indicator" style="display: none;">
+          <span class="pulse-sigil">✦</span>
+          <span class="typing-text">Hesper is consulting her grimoire...</span>
+        </div>
+
+        <!-- Error banner -->
+        <div id="popup-error-banner" class="error-banner" style="display: none;">
+          <span id="popup-error-text" class="error-msg"></span>
+          <button id="btn-popup-retry" class="btn-retry-subtle">Retry</button>
+        </div>
+
+        <!-- Prompt chips -->
+        <div class="popup-prompt-chips">
+          <button class="prompt-chip" data-prompt="Can you help me break down my current task into manageable spells?">Break down task</button>
+          <button class="prompt-chip" data-prompt="Brew me a gentle focus incantation for this work session.">Focus spell</button>
+          <button class="prompt-chip" data-prompt="What potion should I craft next with my ingredients?">Potion advice</button>
+          <button class="prompt-chip" data-prompt="Tell me a cozy tale from the enchanted library.">Cozy tale</button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <div class="chat-input-bar">
+          <textarea id="popup-chat-input" class="chat-textarea" placeholder="Whisper to Hesper... (Enter sends)" rows="1" maxlength="1000"></textarea>
+          <button id="btn-popup-send" class="btn-send-quill" title="Send (Enter)" aria-label="Send">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 2: QUICK ACTIONS -->
+      <section id="tab-actions" class="popup-tab-pane">
+        <div class="actions-scroll">
+          <!-- 1. Focus Timer Card -->
+          <div class="action-card focus-card">
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon" id="icon-card-focus"></span>
+                <span class="card-title">Focus Session</span>
+              </div>
+              <span id="action-focus-badge" class="status-tag tag-idle">Idle</span>
+            </div>
+
+            <div class="focus-time-display">
+              <span id="action-focus-timer" class="focus-big-clock">25:00</span>
+              <span id="action-focus-sub" class="focus-sub-label">25-minute study interval</span>
+            </div>
+
+            <div class="action-btn-row">
+              <button id="btn-focus-start-resume" class="action-btn btn-primary">
+                <span class="action-icon" id="icon-focus-play"></span>
+                <span id="text-focus-start-resume">Start (25m)</span>
+              </button>
+              <button id="btn-focus-pause" class="action-btn btn-secondary" disabled>
+                <span class="action-icon" id="icon-focus-pause"></span>
+                <span>Pause</span>
+              </button>
+              <button id="btn-focus-stop" class="action-btn btn-secondary" disabled>
+                <span class="action-icon" id="icon-focus-stop"></span>
+                <span>End</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Grimoire Tasks Card -->
+          <div class="action-card tasks-card">
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon" id="icon-card-tasks"></span>
+                <span class="card-title">Current Incantation</span>
+              </div>
+              <span id="action-task-count-badge" class="count-badge">0 tasks</span>
+            </div>
+
+            <!-- In-progress Task Banner -->
+            <div id="current-task-box" class="current-task-box">
+              <div class="task-info">
+                <span id="current-task-title" class="task-title-text">No pending incantations</span>
+                <span id="current-task-priority" class="priority-tag hidden">Medium</span>
+              </div>
+              <button id="btn-complete-task" class="btn-check-complete hidden" title="Mark Task Complete" aria-label="Mark Complete">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Quick Add Task -->
+            <form id="quick-task-form" class="quick-add-task-form">
+              <input type="text" id="input-quick-task" class="quick-task-input" placeholder="Add an incantation..." maxlength="120" autocomplete="off">
+              <button type="submit" id="btn-add-quick-task" class="btn-add-task" title="Add Task">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- 3. Companion Care Card -->
+          <div class="action-card companion-care-card">
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon" id="icon-card-companion"></span>
+                <span class="card-title">Companion Care</span>
+              </div>
+            </div>
+
+            <div class="care-buttons-grid">
+              <button id="btn-action-talk" class="care-btn">
+                <span class="care-icon" id="icon-care-talk"></span>
+                <span>Talk to Hesper</span>
+              </button>
+              <button id="btn-action-rest" class="care-btn">
+                <span class="care-icon" id="icon-care-rest"></span>
+                <span>Rest</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. Sanctuary Navigation Card -->
+          <div class="action-card shortcuts-card">
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon" id="icon-card-sanctuary"></span>
+                <span class="card-title">Sanctuary</span>
+              </div>
+            </div>
+
+            <div class="shortcuts-row">
+              <button id="btn-quick-open-sanctuary" class="shortcut-btn">
+                <span class="shortcut-icon" id="icon-shortcut-hub"></span>
+                <span>Open Sanctuary</span>
+              </button>
+              <button id="btn-quick-open-settings" class="shortcut-btn">
+                <span class="shortcut-icon" id="icon-shortcut-settings"></span>
+                <span>Settings</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../common/icons.js"></script>
+  <script src="../common/characterComponent.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

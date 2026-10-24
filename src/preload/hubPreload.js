@@ -38,7 +38,12 @@ contextBridge.exposeInMainWorld('familiarHubAPI', {
     getAll: () => ipcRenderer.invoke('tasks:getAll'),
     create: (task) => ipcRenderer.invoke('tasks:create', task),
     update: (id, updates) => ipcRenderer.invoke('tasks:update', { id, updates }),
-    delete: (id) => ipcRenderer.invoke('tasks:delete', id)
+    delete: (id) => ipcRenderer.invoke('tasks:delete', id),
+    onUpdate: (callback) => {
+      const sub = (event, data) => callback(data);
+      ipcRenderer.on('tasks:updated', sub);
+      return () => ipcRenderer.removeListener('tasks:updated', sub);
+    }
   },
 
   // Activity tracking and summaries
@@ -72,6 +77,11 @@ contextBridge.exposeInMainWorld('familiarHubAPI', {
     sendMessage: (text) => ipcRenderer.invoke('ai:sendMessage', text),
     getHistory: () => ipcRenderer.invoke('ai:getHistory'),
     clearHistory: () => ipcRenderer.invoke('ai:clearHistory'),
+    onHistoryUpdated: (callback) => {
+      const sub = (event, history) => callback(history);
+      ipcRenderer.on('ai:historyUpdated', sub);
+      return () => ipcRenderer.removeListener('ai:historyUpdated', sub);
+    },
     getMemories: () => ipcRenderer.invoke('ai:getMemories'),
     saveMemory: (text) => ipcRenderer.invoke('ai:saveMemory', text),
     deleteMemory: (id) => ipcRenderer.invoke('ai:deleteMemory', id)

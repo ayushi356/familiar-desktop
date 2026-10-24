@@ -210,6 +210,38 @@ const FANTASY_ICONS = {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
       <path d="M16 9V4l1 0V2H7v2l1 0v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z" fill="currentColor"/>
     </svg>
+  `,
+
+  play: `
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <polygon points="6,3 20,12 6,21"/>
+    </svg>
+  `,
+
+  pause: `
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <rect x="6" y="4" width="4" height="16" rx="1"/>
+      <rect x="14" y="4" width="4" height="16" rx="1"/>
+    </svg>
+  `,
+
+  stop: `
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <rect x="5" y="5" width="14" height="14" rx="2"/>
+    </svg>
+  `,
+
+  check: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  `,
+
+  plus: `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
   `
 };
 

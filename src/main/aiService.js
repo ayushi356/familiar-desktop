@@ -6,6 +6,16 @@
  * with OpenAI-compatible endpoints using native Node.js fetch.
  */
 
+function stripEmojisAndSparkles(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+    .replace(/^[✦✧★☆*•\-–—\s]+/g, '')
+    .replace(/[✦✧★☆*•\-–—\s]+$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 class AIService {
   constructor(store, focusManager) {
     this.store = store;
@@ -162,6 +172,7 @@ YOUR PERSONALITY & TONE:
 - If the user asks for help breaking down a big or daunting task, give a structured, bite-sized list of small, actionable "spells" (steps) to get them started.
 - Be deeply encouraging and compassionate. NEVER scold, shame, or guilt the user for being distracted, tired, or taking breaks.
 - Respect quiet hours and encourage mindful rest and hydration.
+- Do NOT use emoji characters or decorative emoji symbols (such as sparkles, smileys, stars, hearts, etc.) in your dialogue. Express warmth, whimsy, and magic through evocative language and natural prose alone.
 
 IMPORTANT TRUTHFULNESS & TECHNICAL BOUNDARIES:
 - You exist inside the Familiar desktop application.
@@ -262,7 +273,7 @@ USER'S CURRENT PERMITTED CONTEXT:
 
     try {
       // Local models may need time to warm up into memory on the first request
-      const timeoutMs = isLocal ? 75000 : 30000;
+      const timeoutMs = isLocal ? 90000 : 30000;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -325,9 +336,10 @@ USER'S CURRENT PERMITTED CONTEXT:
       }
 
       const data = await response.json();
-      const reply = data.choices && data.choices[0] && data.choices[0].message
+      const rawReply = data.choices && data.choices[0] && data.choices[0].message
         ? data.choices[0].message.content.trim()
         : 'Hesper tilts her hat thoughtfully, but the message was lost in the ether.';
+      const reply = stripEmojisAndSparkles(rawReply) || rawReply;
 
       // Save to chat history
       this._appendHistory(cleanInput, reply);
@@ -383,7 +395,7 @@ USER'S CURRENT PERMITTED CONTEXT:
     history.push({
       id: `msg_a_${Date.now()}`,
       role: 'assistant',
-      content: assistantText,
+      content: stripEmojisAndSparkles(assistantText) || assistantText,
       timestamp: Date.now()
     });
 
@@ -393,11 +405,20 @@ USER'S CURRENT PERMITTED CONTEXT:
   }
 
   /**
-   * Returns conversation history
+   * Returns conversation history with emojis sanitized for Grimoire Whispers
    */
   getHistory() {
     const ai = this.store.get('ai') || {};
-    return ai.chatHistory || [];
+    const history = ai.chatHistory || [];
+    return history.map(item => {
+      if (item.role === 'assistant') {
+        return {
+          ...item,
+          content: stripEmojisAndSparkles(item.content) || item.content
+        };
+      }
+      return item;
+    });
   }
 
   /**

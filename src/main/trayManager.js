@@ -52,12 +52,27 @@ class TrayManager {
         click: () => this.windowManager.showHub('companion')
       },
       {
-        label: 'Show Floating Companion',
+        label: 'Show / Hide Floating Companion',
         click: () => {
           const comp = this.windowManager.companionWindow;
           if (comp) {
+            if (comp.isVisible()) {
+              comp.hide();
+              this.windowManager.hideCompanionPopup();
+            } else {
+              comp.show();
+              comp.focus();
+            }
+          }
+        }
+      },
+      {
+        label: 'Reset Companion Position',
+        click: () => {
+          this.windowManager.resetCompanionPosition();
+          const comp = this.windowManager.companionWindow;
+          if (comp && !comp.isVisible()) {
             comp.show();
-            comp.focus();
           }
         }
       },

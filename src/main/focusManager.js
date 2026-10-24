@@ -121,7 +121,7 @@ class FocusManager {
       inv.ingredients[dropped] = (inv.ingredients[dropped] || 0) + 1;
       this.store.set('inventory', inv);
 
-      companion.dialogue = `✦ Focus session complete! You gained +40 XP, +25 Stardust, and collected 1x ${dropped.replace('-', ' ')}!`;
+      companion.dialogue = `Focus session complete! You gained +40 XP, +25 Stardust, and collected 1x ${dropped.replace('-', ' ')}!`;
       this.store.set('companion', companion);
       this.windowManager.sendToAll('companion:updated', companion);
     } else {

@@ -65,7 +65,7 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
     if (newXp >= xpNeeded) {
       newLevel++;
       newXp = newXp - xpNeeded;
-      dialogue += ` ✨ Hesper reached Companion Level ${newLevel}!`;
+      dialogue += ` Hesper reached Companion Level ${newLevel}!`;
       // Grant free stardust on level up
       store.set('companion.magicalDust', (companion.magicalDust || 0) + 50);
     }
@@ -91,6 +91,50 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
     store.set('companion.name', sanitized);
     windowManager.sendToAll('companion:updated', store.get('companion'));
     return true;
+  });
+
+  /* ================= COMPANION DRAG & POSITION ================= */
+  ipcMain.handle('companion:dragStart', async (event, data) => {
+    if (data && typeof data.screenX === 'number' && typeof data.screenY === 'number') {
+      windowManager.startCompanionDrag(data);
+    }
+    return true;
+  });
+
+  ipcMain.handle('companion:dragMove', async (event, data) => {
+    if (data && typeof data.screenX === 'number' && typeof data.screenY === 'number') {
+      windowManager.moveCompanionDrag(data);
+    }
+    return true;
+  });
+
+  ipcMain.handle('companion:dragEnd', async () => {
+    windowManager.endCompanionDrag();
+    return true;
+  });
+
+  ipcMain.handle('companion:resetPosition', async () => {
+    windowManager.resetCompanionPosition();
+    return true;
+  });
+
+  /* ================= POPUP WINDOW CONTROLS ================= */
+  ipcMain.handle('companion:togglePopup', async () => {
+    return windowManager.toggleCompanionPopup();
+  });
+
+  ipcMain.handle('companion:closePopup', async () => {
+    windowManager.hideCompanionPopup();
+    return true;
+  });
+
+  ipcMain.handle('popup:close', async () => {
+    windowManager.hideCompanionPopup();
+    return true;
+  });
+
+  ipcMain.handle('companion:isPopupOpen', async () => {
+    return !!(windowManager.popupWindow && !windowManager.popupWindow.isDestroyed() && windowManager.popupWindow.isVisible());
   });
 
   /* ================= WINDOW CONTROLS ================= */
@@ -141,6 +185,7 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
     const tasks = store.get('tasks') || [];
     tasks.unshift(newTask);
     store.set('tasks', tasks);
+    windowManager.sendToAll('tasks:updated', tasks);
     return newTask;
   });
 
@@ -157,6 +202,7 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
 
     tasks[index] = { ...task, ...updates };
     store.set('tasks', tasks);
+    windowManager.sendToAll('tasks:updated', tasks);
 
     // Reward for completing a task!
     if (!wasCompleted && isNowCompleted) {
@@ -164,7 +210,7 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
       comp.xp = (comp.xp || 0) + 20;
       comp.magicalDust = (comp.magicalDust || 0) + 10;
       comp.currentState = 'celebrating';
-      comp.dialogue = `✦ Incantation complete! You gained +20 XP and +10 Stardust!`;
+      comp.dialogue = `Incantation complete! You gained +20 XP and +10 Stardust!`;
       store.set('companion', comp);
       windowManager.sendToAll('companion:updated', comp);
     }
@@ -177,6 +223,7 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
     let tasks = store.get('tasks') || [];
     tasks = tasks.filter(t => t.id !== id);
     store.set('tasks', tasks);
+    windowManager.sendToAll('tasks:updated', tasks);
     return true;
   });
 
@@ -276,7 +323,7 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
     comp.magicalDust = (comp.magicalDust || 0) + rewardDust;
     comp.xp = (comp.xp || 0) + 25;
     comp.currentState = 'brewing';
-    comp.dialogue = `✦ Potion crafted: ${potionName}! ${message}`;
+    comp.dialogue = `Potion crafted: ${potionName}! ${message}`;
     store.set('companion', comp);
     windowManager.sendToAll('companion:updated', comp);
 
@@ -306,8 +353,11 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
     };
 
     store.set('settings', updated);
-    if (windowManager.companionWindow) {
+    if (windowManager.companionWindow && !windowManager.companionWindow.isDestroyed()) {
       windowManager.companionWindow.setAlwaysOnTop(updated.alwaysOnTop);
+    }
+    if (windowManager.popupWindow && !windowManager.popupWindow.isDestroyed()) {
+      windowManager.popupWindow.setAlwaysOnTop(updated.alwaysOnTop);
     }
     return updated;
   });
@@ -341,6 +391,8 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
       // Sync dialogue update to companion window
       windowManager.sendToAll('companion:updated', store.get('companion'));
     }
+    // Broadcast refreshed history to both Hub and Popup windows
+    windowManager.sendToAll('ai:historyUpdated', aiService.getHistory());
     return result;
   });
 
@@ -351,7 +403,9 @@ function registerIpcHandlers(store, windowManager, focusManager, aiService) {
 
   ipcMain.handle('ai:clearHistory', async () => {
     if (!aiService) return [];
-    return aiService.clearHistory();
+    const cleared = aiService.clearHistory();
+    windowManager.sendToAll('ai:historyUpdated', cleared);
+    return cleared;
   });
 
   ipcMain.handle('ai:getMemories', async () => {

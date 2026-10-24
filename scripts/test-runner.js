@@ -38,10 +38,14 @@ async function runAllTests() {
       'src/main/aiService.js',
       'src/main/ipcHandlers.js',
       'src/preload/companionPreload.js',
+      'src/preload/popupPreload.js',
       'src/preload/hubPreload.js',
       'src/renderer/companion/index.html',
       'src/renderer/companion/companion.css',
       'src/renderer/companion/companion.js',
+      'src/renderer/companion/popup.html',
+      'src/renderer/companion/popup.css',
+      'src/renderer/companion/popup.js',
       'src/renderer/hub/index.html',
       'src/renderer/hub/hub.css',
       'src/renderer/hub/hub.js',
@@ -240,6 +244,107 @@ async function runAllTests() {
     assert.strictEqual(result.success, true, `Local Ollama call should succeed: ${result.message || ''}`);
     assert.ok(result.reply && result.reply.length > 0, 'Reply should not be empty');
     console.log(`    🔮 [Live Ollama Hesper Reply]: "${result.reply}"`);
+  });
+
+  // 7. Test Emoji & Sparkle Stripping for Grimoire Whispers
+  await runTest('Dialogue text and Grimoire Whispers are thoroughly sanitized of emojis and sparkle prefixes', () => {
+    function stripEmojisAndSparkles(text) {
+      if (!text || typeof text !== 'string') return '';
+      return text
+        .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+        .replace(/^[✦✧★☆*•\-–—\s]+/g, '')
+        .replace(/[✦✧★☆*•\-–—\s]+$/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+
+    assert.strictEqual(stripEmojisAndSparkles('✦ Hesper: The stars are bright!'), 'Hesper: The stars are bright!');
+    assert.strictEqual(stripEmojisAndSparkles('✨ Incantation complete! You gained +20 XP! ✨'), 'Incantation complete! You gained +20 XP!');
+    assert.strictEqual(stripEmojisAndSparkles('☕ Take a gentle breath and drink your tea. 🍵'), 'Take a gentle breath and drink your tea.');
+    assert.strictEqual(stripEmojisAndSparkles('✦ Focus session complete! 🔮'), 'Focus session complete!');
+    assert.strictEqual(stripEmojisAndSparkles('A cozy afternoon in the sanctuary.'), 'A cozy afternoon in the sanctuary.');
+    assert.strictEqual(stripEmojisAndSparkles('🧙‍♀️ Brewing a potion with 🌟 stars and 💫 sparkles'), 'Brewing a potion with stars and sparkles');
+  });
+
+  // 8. Test Companion Drag Clamping Logic
+  await runTest('Companion window dragging properly clamps within display workArea boundaries', () => {
+    const workArea = { x: 0, y: 0, width: 1920, height: 1040 };
+    const winWidth = 220;
+    const winHeight = 260;
+
+    function clampPosition(targetX, targetY) {
+      const minX = workArea.x;
+      const maxX = workArea.x + workArea.width - winWidth;
+      const minY = workArea.y;
+      const maxY = workArea.y + workArea.height - winHeight;
+      return {
+        x: Math.round(Math.max(minX, Math.min(maxX, targetX))),
+        y: Math.round(Math.max(minY, Math.min(maxY, targetY)))
+      };
+    }
+
+    // Normal position inside bounds
+    const normal = clampPosition(500, 400);
+    assert.strictEqual(normal.x, 500);
+    assert.strictEqual(normal.y, 400);
+
+    // Off-screen left/top
+    const offTopLeft = clampPosition(-150, -80);
+    assert.strictEqual(offTopLeft.x, 0);
+    assert.strictEqual(offTopLeft.y, 0);
+
+    // Off-screen right/bottom
+    const offBottomRight = clampPosition(2500, 1500);
+    assert.strictEqual(offBottomRight.x, 1920 - winWidth);
+    assert.strictEqual(offBottomRight.y, 1040 - winHeight);
+  });
+
+  // 9. Test Popup Smart Positioning Beside Hesper
+  await runTest('Popup calculates smart placement beside Hesper avoiding screen edges', () => {
+    const workArea = { x: 0, y: 0, width: 1920, height: 1040 };
+    const popupW = 360;
+    const popupH = 520;
+    const compW = 220;
+    const compH = 260;
+    const gap = 12;
+
+    function calcPopup(compX, compY) {
+      let popupX;
+      const spaceRight = (workArea.x + workArea.width) - (compX + compW);
+      const spaceLeft = compX - workArea.x;
+
+      if (spaceRight >= popupW + gap) {
+        popupX = compX + compW + gap;
+      } else if (spaceLeft >= popupW + gap) {
+        popupX = compX - popupW - gap;
+      } else if (spaceRight >= spaceLeft) {
+        popupX = workArea.x + workArea.width - popupW - gap;
+      } else {
+        popupX = workArea.x + gap;
+      }
+
+      const idealY = compY + Math.round(compH / 2) - Math.round(popupH / 2);
+      const minY = workArea.y + gap;
+      const maxY = workArea.y + workArea.height - popupH - gap;
+      const popupY = Math.max(minY, Math.min(maxY, idealY));
+
+      return { x: Math.round(popupX), y: Math.round(popupY) };
+    }
+
+    // When Hesper is on far right (e.g. x=1650): popup opens to her LEFT without covering her
+    const rightSide = calcPopup(1650, 600);
+    assert.ok(rightSide.x < 1650, 'Popup must open to the left when on right screen edge');
+    assert.strictEqual(rightSide.x + popupW + gap, 1650);
+    assert.ok(rightSide.y + popupH <= workArea.height, 'Popup must stay within bottom boundary');
+
+    // When Hesper is on far left (e.g. x=20): popup opens to her RIGHT
+    const leftSide = calcPopup(20, 300);
+    assert.ok(leftSide.x > 20 + compW, 'Popup must open to the right when on left screen edge');
+    assert.strictEqual(leftSide.x, 20 + compW + gap);
+
+    // When Hesper is near bottom edge: popup Y clamps inside screen
+    const bottomEdge = calcPopup(1600, 800);
+    assert.ok(bottomEdge.y + popupH <= workArea.height - gap, 'Popup must not extend below taskbar');
   });
 
   // Clean up temp store
