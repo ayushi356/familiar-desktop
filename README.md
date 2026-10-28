@@ -1,4 +1,4 @@
-# Familiar — A Magical Desktop Companion 🔮🕯️
+# Familiar — A Magical Desktop Companion
 
 **Familiar** is a Windows desktop application that combines a virtual pet / companion simulator with focus productivity tools, local activity tracking, and dark academia / cozy gothic fantasy charm.
 
@@ -27,11 +27,11 @@ Hesper can be connected to conversational AI models (such as OpenAI's `gpt-4o-mi
 ### Privacy & Security Guarantees
 1. **Strictly Opt-In**: Conversational AI is disabled by default. Hesper only connects to an AI provider if you enable it in **Sanctuary Settings**.
 2. **Context Isolation**: Only explicitly permitted items are included in prompts.
-   - ✅ Current Focus status & duration (optional)
-   - ✅ Primary in-progress task title (optional)
-   - ✅ Incomplete task count (optional)
-   - ✅ Saved memories & preferences (optional)
-   - ❌ **NEVER shared**: Your open window titles, computer activity history, process lists, browser URLs, microphone, or local files.
+   -  Current Focus status & duration (optional)
+   -  Primary in-progress task title (optional)
+   -  Incomplete task count (optional)
+   -  Saved memories & preferences (optional)
+   -  **NEVER shared**: Your open window titles, computer activity history, process lists, browser URLs, microphone, or local files.
 3. **No Credentials in Renderer or Git**: Your API key is stored locally in your protected user profile (`user-data/familiar-data.json`, ignored by `.gitignore`). The key is never committed to Git and is never exposed in the browser/renderer process.
 4. **No Middleman Servers**: Requests are made directly from your desktop to your chosen endpoint using native Node.js HTTP clients.
 5. **Transparency Scrying Tool**: Click the **✦ Context** button in the Sanctuary Parlor or Settings at any time to inspect the exact JSON payload sent to the model.
